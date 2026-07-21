@@ -21,18 +21,27 @@
                     availability before borrowing.
                 </p>
 
-                <!-- Cy can connect this form to the final search/filter route -->
                 <form action="/books" method="GET" class="hero-search mt-4">
                     <div class="input-group input-group-lg">
                         <input
                             type="search"
                             name="search"
                             class="form-control"
+                            style="flex:3;"
                             placeholder="Search by title or author"
                             aria-label="Search books"
+                            value="<%= search %>"
                         >
+                        <select name="genre" class="form-select" style="min-width:160px; flex:1;">
+                            <option value="all" <%= selectedGenre === 'all' ? 'selected' : '' %>>All Genres</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat.categoryName %>" <%= selectedGenre === cat.categoryName ? 'selected' : '' %>>
+                                    <%= cat.categoryName %>
+                                </option>
+                            <% }) %>
+                        </select>
 
-                        <button class="btn btn-warning" type="submit">
+                        <button class="btn btn-warning" type="submit" style="min-width:130px;">
                             <i class="bi bi-search me-1"></i>
                             Search
                         </button>
