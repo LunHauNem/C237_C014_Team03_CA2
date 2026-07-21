@@ -66,14 +66,10 @@ app.use(
     })
 );
 
-// ==========================================
-// HOMEPAGE
-// ==========================================
 
 function showHomepage(req, res) {
-    const search = (
-        req.query.search || ''
-    ).trim();
+    const search = (req.query.search || '').trim();
+    const filterGenre = req.query.genre || 'all';
 
     let sql = `
         SELECT
@@ -88,80 +84,58 @@ function showHomepage(req, res) {
             b.image,
             c.categoryName
         FROM books b
-        INNER JOIN categories c
-            ON b.categoryId = c.categoryId
+        INNER JOIN categories c ON b.categoryId = c.categoryId
+        WHERE 1=1
     `;
-
     const values = [];
 
-    // Search by title, author or category.
     if (search !== '') {
-        sql += `
-            WHERE b.title LIKE ?
-               OR b.author LIKE ?
-               OR c.categoryName LIKE ?
-        `;
-
+        sql += ` AND (b.title LIKE ? OR b.author LIKE ? OR c.categoryName LIKE ?)`;
         const searchValue = `%${search}%`;
-
-        values.push(
-            searchValue,
-            searchValue,
-            searchValue
-        );
+        values.push(searchValue, searchValue, searchValue);
     }
 
-    sql += `
-        ORDER BY b.bookId DESC
-    `;
+    if (filterGenre !== 'all') {
+        sql += ` AND c.categoryName = ?`;
+        values.push(filterGenre);
+    }
+
+    sql += ` ORDER BY b.bookId DESC`;
 
     db.query(sql, values, (error, books) => {
         if (error) {
-            console.error(
-                'Error loading homepage:',
-                error
-            );
-
-            return res.status(500).send(
-                'Unable to load the books.'
-            );
+            console.error('Error loading homepage:', error);
+            return res.status(500).send('Unable to load the books.');
         }
 
-        res.render('home', {
-            pageTitle: 'Home',
-            books: books,
-            search: search,
-            user: req.session.user || null
+        db.query(`SELECT DISTINCT categoryName FROM categories ORDER BY categoryName`, (catErr, categories) => {
+            if(catErr) console.error("分类加载失败", catErr);
+            res.render('home', {
+                pageTitle: 'Home',
+                books: books,
+                search: search,
+                selectedGenre: filterGenre,
+                categories: categories,
+                user: req.session.user || null
+            });
         });
     });
 }
 
 app.get('/', showHomepage);
-
 app.get('/books', showHomepage);
 
 // ==========================================
 // BOOK DESCRIPTION PAGE
 // ==========================================
-
 app.get('/book/:bookId', (req, res) => {
-    const bookId = Number.parseInt(
-        req.params.bookId,
-        10
-    );
+    const bookId = Number.parseInt(req.params.bookId, 10);
 
-    // Reject invalid IDs.
-    if (
-        !Number.isInteger(bookId) ||
-        bookId <= 0
-    ) {
-        return res.status(404).render(
-            'bookNotFound',
-            {
-                pageTitle: 'Book Not Found',
-                user: req.session.user || null
-            }
-        );
+    if (!Number.isInteger(bookId) || bookId <= 0) {
+        return res.status(404).render('bookNotFound', {
+            pageTitle: 'Book Not Found',
+            user: req.session.user || null
+        });
     }
 
     const sql = `
@@ -177,55 +151,34 @@ app.get('/book/:bookId', (req, res) => {
             b.image,
             c.categoryName
         FROM books b
-        INNER JOIN categories c
-            ON b.categoryId = c.categoryId
+        INNER JOIN categories c ON b.categoryId = c.categoryId
         WHERE b.bookId = ?
     `;
 
-    db.query(
-        sql,
-        [bookId],
-        (error, results) => {
-            if (error) {
-                console.error(
-                    'Error loading book:',
-                    error
-                );
+    db.query(sql, [bookId], (error, results) => {
+        if (error) {
+            console.error('Error loading book:', error);
+            return res.status(500).send('Unable to load this book.');
+        }
 
-                return res.status(500).send(
-                    'Unable to load this book.'
-                );
-            }
-
-            if (results.length === 0) {
-                return res.status(404).render(
-                    'bookNotFound',
-                    {
-                        pageTitle: 'Book Not Found',
-                        user:
-                            req.session.user ||
-                            null
-                    }
-                );
-            }
-
-            res.render('bookDescription', {
-                pageTitle: results[0].title,
-                book: results[0],
-                user:
-                    req.session.user ||
-                    null
+        if (results.length === 0) {
+            return res.status(404).render('bookNotFound', {
+                pageTitle: 'Book Not Found',
+                user: req.session.user || null
             });
         }
-    );
+
+        res.render('bookDescription', {
+            pageTitle: results[0].title,
+            book: results[0],
+            user: req.session.user || null
+        });
+    });
 });
 
 // ==========================================
 // TEMPORARY BORROW ROUTE
 // ==========================================
-// This prevents an error while the borrowing
-// feature is still being developed.
-
 app.post('/borrow/:bookId', (req, res) => {
     res.send(`
         <h2>Borrowing function not connected yet.</h2>
@@ -237,8 +190,6 @@ app.post('/borrow/:bookId', (req, res) => {
 // ==========================================
 // TEMPORARY LOGIN AND REGISTRATION ROUTES
 // ==========================================
-// Your teammates can replace these later.
-
 app.get('/login', (req, res) => {
     res.send(`
         <h2>Login Page</h2>
@@ -258,12 +209,8 @@ app.get('/register', (req, res) => {
 app.get('/logout', (req, res) => {
     req.session.destroy((error) => {
         if (error) {
-            console.error(
-                'Logout error:',
-                error
-            );
+            console.error('Logout error:', error);
         }
-
         res.redirect('/');
     });
 });
@@ -271,7 +218,6 @@ app.get('/logout', (req, res) => {
 // ==========================================
 // PAGE NOT FOUND
 // ==========================================
-
 app.use((req, res) => {
     res.status(404).send(`
         <h2>Page Not Found</h2>
@@ -282,9 +228,6 @@ app.use((req, res) => {
 // ==========================================
 // START SERVER
 // ==========================================
-
 app.listen(PORT, () => {
-    console.log(
-        `Server running at http://localhost:${PORT}`
-    );
+    console.log(`Server running at http://localhost:${PORT}`);
 });
