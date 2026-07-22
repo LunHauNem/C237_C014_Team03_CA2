@@ -377,7 +377,44 @@ app.get('/book/:bookId', (req, res) => {
         }
     );
 });
+// ==========================================
+// ADD BOOKS
+// ==========================================
+app.get('/addBook', (req, res) => {
+    db.query(`SELECT categoryId, categoryName FROM categories ORDER BY categoryName`, (error, categories) => {
+        if (error) {
+            console.error('Error loading categories for addBook:', error);
+            return res.status(500).send('Unable to load the add book form.');
+        }
+        res.render('addBook', {
+            categories: categories,
+            error: '',
+            user: req.session.user || null
+        });
+    });
+});
 
+app.post('/addBook', (req, res) => {
+    const {title,author,isbn,quantity,
+        availableQuantity,description,image,categoryId
+    } = req.body;
+    const sql = `
+        INSERT INTO books
+            (title, author, isbn, quantity, availableQuantity, description, image, categoryId)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    db.query(
+        sql,
+        [title, author, isbn, quantity, availableQuantity, description, image, categoryId],
+        (error) => {
+            if (error) {
+                console.error('Error adding book:', error);
+                return res.status(500).send('Unable to add book.');
+            }
+            return res.redirect('/');
+        }
+    );
+});
 
 // ==========================================================
 // TEMPORARY BORROW ROUTE
