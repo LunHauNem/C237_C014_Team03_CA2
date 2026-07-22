@@ -184,8 +184,8 @@ function showHomepage(req, res) {
             b.image,
             c.categoryName
         FROM books b
-        INNER JOIN categories c
-            ON b.categoryId = c.categoryId
+        INNER JOIN categories c ON b.categoryId = c.categoryId
+        WHERE 1=1
     `;
 
     // Store values used by the prepared SQL statement.
@@ -337,25 +337,15 @@ app.get('/book/:bookId', (req, res) => {
             b.image,
             c.categoryName
         FROM books b
-        INNER JOIN categories c
-            ON b.categoryId = c.categoryId
+        INNER JOIN categories c ON b.categoryId = c.categoryId
         WHERE b.bookId = ?
     `;
 
-    db.query(
-        sql,
-        [bookId],
-        (error, results) => {
-            if (error) {
-                console.error(
-                    'Error loading book:',
-                    error
-                );
-
-                return res.status(500).send(
-                    'Unable to load this book.'
-                );
-            }
+    db.query(sql, [bookId], (error, results) => {
+        if (error) {
+            console.error('Error loading book:', error);
+            return res.status(500).send('Unable to load this book.');
+        }
 
             // Display the not-found page when no book exists.
             if (results.length === 0) {
@@ -894,7 +884,5 @@ app.use((req, res) => {
 
 // Start the Express server.
 app.listen(PORT, () => {
-    console.log(
-        `Server running at http://localhost:${PORT}`
-    );
+    console.log(`Server running at http://localhost:${PORT}`);
 });
