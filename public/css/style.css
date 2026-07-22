@@ -263,3 +263,132 @@ body {
         flex-direction: column;
     }
 }
+
+
+.auth-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px 20px;
+    background-color: #f5f2eb;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 460px;
+    background-color: white;
+    padding: 36px;
+    border-radius: 18px;
+    box-shadow: 0 12px 35px
+        rgba(0, 0, 0, 0.12);
+}
+
+.auth-card h1 {
+    margin: 24px 0 8px;
+    text-align: center;
+    color: #2c3e50;
+}
+
+.auth-subtitle {
+    margin-bottom: 28px;
+    text-align: center;
+    color: #687078;
+}
+
+.back-link {
+    text-decoration: none;
+    color: #50684b;
+    font-weight: 600;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group label {
+    color: #333;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #cfcfcf;
+    border-radius: 9px;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.form-group input:focus {
+    border-color: #50684b;
+    outline: none;
+}
+
+.auth-button {
+    margin-top: 8px;
+    padding: 13px;
+    border: none;
+    border-radius: 9px;
+    background-color: #50684b;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.auth-button:hover {
+    opacity: 0.9;
+}
+
+.auth-footer {
+    margin-top: 24px;
+    text-align: center;
+    color: #555;
+}
+
+.auth-footer a {
+    color: #50684b;
+    font-weight: 700;
+}
+
+.message {
+    margin-bottom: 20px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.error-message {
+    background-color: #ffe5e5;
+    color: #a12626;
+}
+
+.success-message {
+    background-color: #e6f5e6;
+    color: #226b22;
+}
+
+.form-group select {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d7d7d7;
+    border-radius: 9px;
+    background-color: white;
+    font-size: 16px;
+    color: #333;
+}
+
+.form-group select:focus {
+    outline: none;
+    border-color: #557451;
+    box-shadow: 0 0 0 3px rgba(85, 116, 81, 0.15);
+}
