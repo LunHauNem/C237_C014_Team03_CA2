@@ -24,7 +24,7 @@
                 <form action="/books" method="GET" class="hero-search mt-4">
                     <div class="input-group input-group-lg">
                         <input
-                            type="search"
+                            type="text"
                             name="search"
                             class="form-control"
                             style="flex:3;"
@@ -32,12 +32,31 @@
                             aria-label="Search books"
                             value="<%= search %>"
                         >
-                        <select name="genre" class="form-select" style="min-width:160px; flex:1;">
-                            <option value="all" <%= selectedGenre === 'all' ? 'selected' : '' %>>All Genres</option>
-                            <% categories.forEach(cat => { %>
-                                <option value="<%= cat.categoryName %>" <%= selectedGenre === cat.categoryName ? 'selected' : '' %>>
-                                    <%= cat.categoryName %>
+                        <select
+                            name="genre"
+                            class="form-select"
+                        >
+                            <option
+                                value="all"
+                                <%= selectedGenre === 'all'
+                                    ? 'selected'
+                                    : '' %>
+                            >
+                                All Genres
+                            </option>
+
+                            <% categories.forEach(category => { %>
+
+                                <option
+                                    value="<%= category.categoryId %>"
+                                    <%= String(selectedGenre) ===
+                                        String(category.categoryId)
+                                        ? 'selected'
+                                        : '' %>
+                                >
+                                    <%= category.categoryName %>
                                 </option>
+
                             <% }) %>
                         </select>
 

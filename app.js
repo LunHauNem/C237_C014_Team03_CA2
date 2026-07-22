@@ -158,19 +158,17 @@ function checkAdmin(req, res, next) {
 // HOMEPAGE AND BOOK SEARCH
 // ==========================================================
 
-// Load the homepage and book-search results.
 function showHomepage(req, res) {
-    // Retrieve the search text from the URL.
+    // Get search text from the URL.
     const search = (
         req.query.search || ''
     ).trim();
 
-    // Retrieve the selected category from the URL.
-    const selectedGenre = (
-        req.query.genre || 'all'
-    ).trim();
+    // Get selected category ID from the URL.
+    const selectedGenre =
+        req.query.genre || 'all';
 
-    // Start the SQL query for loading books.
+    // Base query for books.
     let booksSql = `
         SELECT
             b.bookId,
@@ -184,15 +182,12 @@ function showHomepage(req, res) {
             b.image,
             c.categoryName
         FROM books b
-        INNER JOIN categories c ON b.categoryId = c.categoryId
-        WHERE 1=1
+        INNER JOIN categories c
+            ON b.categoryId = c.categoryId
     `;
 
-    // Store values used by the prepared SQL statement.
-    const values = [];
-
-    // Store WHERE conditions separately.
     const conditions = [];
+    const values = [];
 
     // Search by title or author.
     if (search !== '') {
@@ -211,31 +206,37 @@ function showHomepage(req, res) {
         );
     }
 
-    // Filter by category when a category is selected.
+    // Filter using category ID.
     if (
-        selectedGenre !== '' &&
-        selectedGenre !== 'all'
+        selectedGenre !== 'all' &&
+        selectedGenre !== ''
     ) {
-        conditions.push(`
-            c.categoryName = ?
-        `);
+        const categoryId = Number.parseInt(
+            selectedGenre,
+            10
+        );
 
-        values.push(selectedGenre);
+        if (Number.isInteger(categoryId)) {
+            conditions.push(
+                'b.categoryId = ?'
+            );
+
+            values.push(categoryId);
+        }
     }
 
-    // Add the WHERE statement only when needed.
+    // Add WHERE only when conditions exist.
     if (conditions.length > 0) {
         booksSql += `
             WHERE ${conditions.join(' AND ')}
         `;
     }
 
-    // Show the newest books first.
     booksSql += `
         ORDER BY b.bookId DESC
     `;
 
-    // Load all categories for the dropdown menu.
+    // Query for category dropdown.
     const categoriesSql = `
         SELECT
             categoryId,
@@ -244,7 +245,6 @@ function showHomepage(req, res) {
         ORDER BY categoryName ASC
     `;
 
-    // Run the categories query first.
     db.query(
         categoriesSql,
         (categoryError, categories) => {
@@ -259,7 +259,6 @@ function showHomepage(req, res) {
                 );
             }
 
-            // Run the book query after loading the categories.
             db.query(
                 booksSql,
                 values,
@@ -267,7 +266,17 @@ function showHomepage(req, res) {
                     if (bookError) {
                         console.error(
                             'Error loading books:',
-                            bookError
+                            bookError.message
+                        );
+
+                        console.error(
+                            'SQL query:',
+                            booksSql
+                        );
+
+                        console.error(
+                            'SQL values:',
+                            values
                         );
 
                         return res.status(500).send(
@@ -275,15 +284,13 @@ function showHomepage(req, res) {
                         );
                     }
 
-                    // Display the homepage.
                     return res.render('home', {
                         pageTitle: 'Home',
                         books: books,
                         categories: categories,
                         search: search,
-                        selectedGenre: selectedGenre,
-                        user:
-                            req.session.user || null
+                        selectedGenre:
+                            selectedGenre
                     });
                 }
             );
