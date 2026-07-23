@@ -1529,6 +1529,84 @@ app.post('/admin/books/edit/:bookId', adminOnly, (req, res) => {
         }
     );
 });
+// ==========================================
+// ADD BOOKS
+// ==========================================
+app.get(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
+        db.query(
+            `SELECT categoryId, categoryName
+            FROM categories
+            ORDER BY categoryName
+            `,
+            (error, categories) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Unable to load categories.');
+                }
+                res.render('addBook', {
+                    pageTitle: 'Add Book',
+                    error: '',
+                    categories,
+                    user: req.session.user
+                });
+            });
+    });
+
+app.post(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
+        const {
+
+            title,
+            author,
+            isbn,
+            quantity,
+            availableQuantity,
+            description,
+            image,
+            categoryId
+        } = req.body;
+        const sql = `
+            INSERT INTO books
+            (
+                title,
+                author,
+                isbn,
+                quantity,
+                availableQuantity,
+                description,
+                image,
+                categoryId
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        db.query(
+            sql,
+            [
+                title,
+                author,
+                isbn,
+                quantity,
+                availableQuantity,
+                description,
+                image,
+                categoryId
+            ],
+            (error) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Unable to add book.');
+                }
+                req.session.successMessage =
+                    'Book added successfully.';
+                res.redirect('/admin/books');
+            }
+        );
+    });
 
 // ==========================================
 // ADD BOOKS

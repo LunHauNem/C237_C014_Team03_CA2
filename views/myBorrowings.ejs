@@ -1,0 +1,151 @@
+<%- include('partials/header', {
+    pageTitle: pageTitle,
+    user: user
+}) %>
+
+<main class="container py-5">
+
+    <h1 class="mb-4">My Borrowings</h1>
+
+    <section class="mb-5">
+
+        <h2>Currently Borrowed</h2>
+
+        <% if (currentBorrowings.length === 0) { %>
+
+            <div class="alert alert-info">
+                You do not currently have any borrowed books.
+            </div>
+
+        <% } else { %>
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered">
+
+                    <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>Author</th>
+                            <th>Borrow Date</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <% currentBorrowings.forEach(record => { %>
+
+                            <tr>
+                                <td><%= record.title %></td>
+                                <td><%= record.author %></td>
+
+                                <td>
+                                    <%= new Date(
+                                        record.borrowDate
+                                    ).toLocaleDateString('en-SG') %>
+                                </td>
+
+                                <td>
+                                    <%= new Date(
+                                        record.dueDate
+                                    ).toLocaleDateString('en-SG') %>
+                                </td>
+
+                                <td>Borrowed</td>
+
+                                <td>
+                                    <form
+                                        action="/return/<%= record.borrowId %>"
+                                        method="POST"
+                                    >
+                                        <button
+                                            type="submit"
+                                            class="btn btn-success btn-sm"
+                                        >
+                                            Return
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+
+                        <% }) %>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        <% } %>
+
+    </section>
+
+    <section>
+
+        <h2>Returned Books</h2>
+
+        <% if (borrowingHistory.length === 0) { %>
+
+            <div class="alert alert-secondary">
+                You do not have any returned books yet.
+            </div>
+
+        <% } else { %>
+
+            <div class="table-responsive">
+
+                <table class="table table-bordered">
+
+                    <thead>
+                        <tr>
+                            <th>Book</th>
+                            <th>Author</th>
+                            <th>Borrow Date</th>
+                            <th>Return Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <% borrowingHistory.forEach(record => { %>
+
+                            <tr>
+                                <td><%= record.title %></td>
+                                <td><%= record.author %></td>
+
+                                <td>
+                                    <%= new Date(
+                                        record.borrowDate
+                                    ).toLocaleDateString('en-SG') %>
+                                </td>
+
+                                <td>
+                                    <%= record.returnDate
+                                        ? new Date(
+                                            record.returnDate
+                                        ).toLocaleDateString('en-SG')
+                                        : '-' %>
+                                </td>
+
+                                <td>Returned</td>
+                            </tr>
+
+                        <% }) %>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        <% } %>
+
+    </section>
+
+</main>
+
+<%- include('partials/footer') %>
