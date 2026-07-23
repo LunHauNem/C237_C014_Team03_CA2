@@ -23,6 +23,7 @@
 
                 <form action="/books" method="GET" class="hero-search mt-4">
                     <div class="input-group input-group-lg">
+
                         <input
                             type="text"
                             name="search"
@@ -32,6 +33,7 @@
                             aria-label="Search books"
                             value="<%= search %>"
                         >
+
                         <select
                             name="genre"
                             class="form-select"
@@ -60,10 +62,15 @@
                             <% }) %>
                         </select>
 
-                        <button class="btn btn-warning" type="submit" style="min-width:130px;">
+                        <button
+                            class="btn btn-warning"
+                            type="submit"
+                            style="min-width:130px;"
+                        >
                             <i class="bi bi-search me-1"></i>
                             Search
                         </button>
+
                     </div>
                 </form>
             </div>
@@ -82,12 +89,18 @@
 
     <div class="section-heading">
         <div>
-            <p class="section-eyebrow mb-1">OUR COLLECTION</p>
-            <h2 class="fw-bold mb-0">Available Books</h2>
+            <p class="section-eyebrow mb-1">
+                OUR COLLECTION
+            </p>
+
+            <h2 class="fw-bold mb-0">
+                Available Books
+            </h2>
         </div>
 
         <span class="book-count">
-            <%= books.length %> book<%= books.length === 1 ? '' : 's' %>
+            <%= books.length %>
+            book<%= books.length === 1 ? '' : 's' %>
         </span>
     </div>
 
@@ -97,29 +110,61 @@
 
             <% books.forEach(book => { %>
 
+                <%
+                    /*
+                     * Prepare the book image filename.
+                     * This removes:
+                     * - Extra spaces
+                     * - Backslashes
+                     * - Accidental /images/ folder paths
+                     */
+
+                    let imageFilename = '';
+
+                    if (book.image) {
+                        imageFilename = String(book.image)
+                            .trim()
+                            .replace(/\\/g, '/')
+                            .split('/')
+                            .pop();
+                    }
+
+                    const bookImage = imageFilename
+                        ? '/images/' + encodeURIComponent(imageFilename)
+                        : '/images/default-book.jpg';
+                %>
+
                 <div class="col-sm-6 col-lg-4">
 
                     <article class="card book-card h-100">
 
                         <div class="book-cover-wrapper">
+
                             <img
-                                src="<%= book.image
-                                    ? '/images/' + book.image
-                                    : '/images/default-book.jpg' %>"
+                                src="<%= bookImage %>"
                                 class="book-cover"
                                 alt="Cover of <%= book.title %>"
-                                onerror="this.onerror=null; this.src='/images/default-book.jpg';"
+                                loading="lazy"
+                                onerror="
+                                    this.onerror = null;
+                                    this.src = '/images/default-book.jpg';
+                                "
                             >
 
                             <% if (book.availableQuantity > 0) { %>
+
                                 <span class="availability-badge available">
                                     Available
                                 </span>
+
                             <% } else { %>
+
                                 <span class="availability-badge unavailable">
                                     Unavailable
                                 </span>
+
                             <% } %>
+
                         </div>
 
                         <div class="card-body d-flex flex-column">
@@ -141,9 +186,12 @@
                             </p>
 
                             <div class="book-stock mt-auto mb-3">
+
                                 <i class="bi bi-book me-1"></i>
+
                                 <%= book.availableQuantity %> of
                                 <%= book.quantity %> available
+
                             </div>
 
                             <a
@@ -165,11 +213,17 @@
     <% } else { %>
 
         <section class="empty-state text-center">
+
             <i class="bi bi-journal-x empty-icon"></i>
-            <h3 class="mt-3">No books found</h3>
+
+            <h3 class="mt-3">
+                No books found
+            </h3>
+
             <p class="text-muted mb-0">
                 Books added to the database will appear here.
             </p>
+
         </section>
 
     <% } %>
