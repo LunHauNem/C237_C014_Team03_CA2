@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('../partials/head') %>
+</head>
+
+<body class="bg-light">
+
+<%- include('../partials/header') %>
+
+<div class="container py-4">
+
+<div class="row justify-content-center">
+
+<div class="col-lg-8">
+
+<div class="card shadow-sm border-0">
+
+<div class="card-body p-4">
+
+<h3 class="mb-4">
+<i class="bi bi-pencil-square"></i>
+Edit Book
+</h3>
+
+<form action="/admin/books/edit/<%= book.bookId %>" method="POST">
+
+<div class="mb-3">
+<label class="form-label">Title</label>
+
+<input
+type="text"
+name="title"
+class="form-control"
+value="<%= book.title %>"
+required>
+
+</div>
+
+<div class="mb-3">
+<label class="form-label">Author</label>
+
+<input
+type="text"
+name="author"
+class="form-control"
+value="<%= book.author %>"
+required>
+
+</div>
+
+<div class="mb-3">
+<label class="form-label">ISBN</label>
+
+<input
+type="text"
+name="isbn"
+class="form-control"
+value="<%= book.isbn %>"
+required>
+
+</div>
+
+<div class="row">
+
+<div class="col-md-6">
+
+<label class="form-label">
+Total Quantity
+</label>
+
+<input
+type="number"
+name="quantity"
+class="form-control"
+value="<%= book.quantity %>"
+required>
+
+</div>
+
+<div class="col-md-6">
+
+<label class="form-label">
+Available Quantity
+</label>
+
+<input
+type="number"
+name="availableQuantity"
+class="form-control"
+value="<%= book.availableQuantity %>"
+required>
+
+</div>
+
+</div>
+
+<div class="mt-3">
+
+<label class="form-label">
+Category
+</label>
+
+<select
+name="categoryId"
+class="form-select">
+
+<% categories.forEach(category=>{ %>
+
+<option
+value="<%= category.categoryId %>"
+<%= category.categoryId==book.categoryId ? 'selected' : '' %>>
+
+<%= category.categoryName %>
+
+</option>
+
+<% }) %>
+
+</select>
+
+</div>
+
+<div class="mt-3">
+
+<label class="form-label">
+Image URL
+</label>
+
+<input
+type="text"
+name="image"
+class="form-control"
+value="<%= book.image %>">
+
+</div>
+
+<div class="mt-3">
+
+<label class="form-label">
+Description
+</label>
+
+<textarea
+name="description"
+rows="5"
+class="form-control"><%= book.description %></textarea>
+
+</div>
+
+<button class="btn btn-success mt-4">
+Save Changes
+</button>
+
+<a
+href="/admin/books"
+class="btn btn-secondary mt-4">
+Cancel
+</a>
+
+</form>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<%- include('../partials/footer') %>
+
+</body>
+</html>

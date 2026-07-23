@@ -964,7 +964,7 @@ app.get(
 // ADMIN ROUTES
 // ==========================================================
 
-// Every admin route requires login + admin role.
+// Middleware to allow only logged-in administrators.
 function adminOnly(req, res, next) {
     checkAuthenticated(req, res, () => {
         checkAdmin(req, res, next);
@@ -972,217 +972,496 @@ function adminOnly(req, res, next) {
 }
 
 
-// ----------------------------------------------------------
-// Admin homepage
-// ----------------------------------------------------------
+// ==========================================================
+// ADMIN DASHBOARD
+// ==========================================================
 
-app.get(
-    '/admin',
-    adminOnly,
-    (req, res) => {
+app.get('/admin', adminOnly, (req, res) => {
 
-        const stats = {
-            totalBooks: 0,
-            totalMembers: 0,
-            totalBorrowed: 0,
-            totalOverdue: 0,
-            unpaidFines: 0
-        };
+    const stats = {
+        totalBooks: 0,
+        totalMembers: 0,
+        totalBorrowed: 0,
+        totalOverdue: 0,
+        unpaidFines: 0
+    };
 
-        res.render('admin/dashboard', {
-            pageTitle: 'Admin Dashboard',
-            user: req.session.user,
-            stats
-        });
+    res.render('admin/dashboard', {
+        pageTitle: 'Admin Dashboard',
+        user: req.session.user,
+        stats,
+        currentPage: 'dashboard'
+    });
 
-    }
-);
+});
 
-
-// Optional
-app.get(
-    '/admin/dashboard',
-    adminOnly,
-    (req, res) => {
-        res.redirect('/admin');
-    }
-);
+app.get('/admin/dashboard', adminOnly, (req, res) => {
+    res.redirect('/admin');
+});
 
 
-// ----------------------------------------------------------
-// BOOKS
-// ----------------------------------------------------------
+// ==========================================================
+// BOOK LIST
+// ==========================================================
 
-// Book listing
+app.get('/admin/books', adminOnly, (req, res) => {
 
-app.get(
-    '/admin/book',
-    adminOnly,
-    (req, res) => {
+    const search = (req.query.search || '').trim();
 
-        const search = req.query.search || '';
-
-        const sql = `
-            SELECT
-                b.*,
-                c.categoryName
-            FROM books b
-            INNER JOIN categories c
+    const sql = `
+        SELECT
+            b.bookId,
+            b.title,
+            b.author,
+            b.isbn,
+            b.quantity,
+            b.availableQuantity,
+            b.categoryId,
+            c.categoryName
+        FROM books b
+        INNER JOIN categories c
             ON b.categoryId = c.categoryId
-            WHERE
-                b.title LIKE ?
-                OR b.author LIKE ?
-                OR b.isbn LIKE ?
-            ORDER BY b.bookId DESC
-        `;
+        WHERE
+            b.title LIKE ?
+            OR b.author LIKE ?
+            OR b.isbn LIKE ?
+        ORDER BY b.bookId DESC
+    `;
 
-        const keyword = `%${search}%`;
+    const keyword = `%${search}%`;
 
-        db.query(
-            sql,
-            [keyword, keyword, keyword],
-            (err, books) => {
+    db.query(sql, [keyword, keyword, keyword], (err, books) => {
 
-                if (err) {
-                    console.error(err);
-                    return res.status(500).send('Database Error');
-                }
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Unable to load books.');
+        }
 
-                res.render('admin/book', {
-                    pageTitle: 'Books',
-                    books,
-                    search,
-                    user: req.session.user
-                });
-
-            }
-        );
-
-    }
-);
-
-
-// Add Book page
-
-app.get(
-    '/admin/bookForm',
-    adminOnly,
-    (req, res) => {
-
-        db.query(
-            'SELECT * FROM categories ORDER BY categoryName',
-            (err, categories) => {
-
-                if (err) {
-                    console.error(err);
-                    return res.status(500).send('Database Error');
-                }
-
-                res.render('admin/bookForm', {
-                    pageTitle: 'Add Book',
-                    categories,
-                    book: null,
-                    formMode: 'add',
-                    user: req.session.user
-                });
-
-            }
-        );
-
-    }
-);
-
-
-// ----------------------------------------------------------
-// MEMBERS
-// ----------------------------------------------------------
-
-// Member List
-
-app.get(
-    '/admin/member',
-    adminOnly,
-    (req, res) => {
-
-        const search = req.query.search || '';
-
-        const sql = `
-            SELECT *
-            FROM users
-            WHERE
-                name LIKE ?
-                OR email LIKE ?
-            ORDER BY userId DESC
-        `;
-
-        const keyword = `%${search}%`;
-
-        db.query(
-            sql,
-            [keyword, keyword],
-            (err, members) => {
-
-                if (err) {
-                    console.error(err);
-                    return res.status(500).send('Database Error');
-                }
-
-                res.render('admin/member', {
-                    pageTitle: 'Members',
-                    members,
-                    search,
-                    user: req.session.user
-                });
-
-            }
-        );
-
-    }
-);
-
-
-// Add Member page
-
-app.get(
-    '/admin/memberForm',
-    adminOnly,
-    (req, res) => {
-
-        res.render('admin/memberForm', {
-
-            pageTitle: 'Add Member',
-
-            formMode: 'add',
-
-            member: null,
-
-            user: req.session.user
-
+        res.render('admin/books', {
+            pageTitle: 'Book List',
+            books,
+            search,
+            user: req.session.user,
+            currentPage: 'books'
         });
 
+    });
+
+});
+
+
+// ==========================================================
+// ADD BOOK FORM
+// ==========================================================
+
+app.get('/admin/books/add', adminOnly, (req, res) => {
+
+    db.query(
+        `
+        SELECT
+            categoryId,
+            categoryName
+        FROM categories
+        ORDER BY categoryName
+        `,
+        (err, categories) => {
+
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Unable to load categories.');
+            }
+
+            res.render('admin/bookForm', {
+                pageTitle: 'Add Book',
+                categories,
+                book: null,
+                formMode: 'add',
+                user: req.session.user,
+                currentPage: 'books'
+            });
+
+        }
+    );
+
+});
+
+
+// ==========================================================
+// CREATE BOOK
+// ==========================================================
+
+app.post('/admin/books/add', adminOnly, (req, res) => {
+
+    const {
+        title,
+        author,
+        isbn,
+        quantity,
+        availableQuantity,
+        description,
+        image,
+        categoryId
+    } = req.body;
+
+    const sql = `
+        INSERT INTO books
+        (
+            title,
+            author,
+            isbn,
+            quantity,
+            availableQuantity,
+            description,
+            image,
+            categoryId
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    db.query(
+        sql,
+        [
+            title,
+            author,
+            isbn,
+            quantity,
+            availableQuantity,
+            description,
+            image,
+            categoryId
+        ],
+        (err) => {
+
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Unable to add book.');
+            }
+
+            req.session.successMessage = 'Book added successfully.';
+            res.redirect('/admin/books');
+
+        }
+    );
+
+});
+
+// ==========================================================
+// EDIT BOOK
+// ==========================================================
+
+// Show edit form
+app.get('/admin/books/edit/:bookId', adminOnly, (req, res) => {
+
+    db.query(
+
+        `
+        SELECT *
+        FROM books
+        WHERE bookId = ?
+        `,
+
+        [req.params.bookId],
+
+        (err, bookResult) => {
+
+            if (err || bookResult.length === 0) {
+                return res.status(404).send('Book not found.');
+            }
+
+            db.query(
+
+                'SELECT * FROM categories ORDER BY categoryName',
+
+                (err2, categories) => {
+
+                    if (err2) {
+                        return res.status(500).send('Database Error');
+                    }
+
+                    res.render('admin/editBook', {
+
+                        pageTitle: 'Edit Book',
+                        book: bookResult[0],
+                        categories,
+                        user: req.session.user,
+                        currentPage: 'books'
+
+                    });
+
+                }
+
+            );
+
+        }
+
+    );
+
+});
+
+
+// Save changes
+app.post('/admin/books/edit/:bookId', adminOnly, (req, res) => {
+
+    const {
+
+        title,
+        author,
+        isbn,
+        quantity,
+        availableQuantity,
+        description,
+        image,
+        categoryId
+
+    } = req.body;
+
+    db.query(
+
+        `
+        UPDATE books
+        SET
+            title=?,
+            author=?,
+            isbn=?,
+            quantity=?,
+            availableQuantity=?,
+            description=?,
+            image=?,
+            categoryId=?
+        WHERE bookId=?
+        `,
+
+        [
+            title,
+            author,
+            isbn,
+            quantity,
+            availableQuantity,
+            description,
+            image,
+            categoryId,
+            req.params.bookId
+        ],
+
+        (err) => {
+
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Unable to update book.');
+            }
+
+            res.redirect('/admin/books');
+
+        }
+
+    );
+
+});
+
+// ==========================================================
+// DELETE BOOK
+// ==========================================================
+
+app.post('/admin/books/delete/:bookId', adminOnly, (req, res) => {
+
+    db.query(
+
+        'DELETE FROM books WHERE bookId = ?',
+
+        [req.params.bookId],
+
+        (err) => {
+
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Unable to delete book.');
+            }
+
+            res.redirect('/admin/books');
+
+        }
+
+    );
+
+});
+
+// ==========================================================
+// MEMBER LIST
+// ==========================================================
+
+app.get('/admin/members', adminOnly, (req, res) => {
+
+    const search = (req.query.search || '').trim();
+
+    const sql = `
+        SELECT
+            userId,
+            name,
+            email,
+            role,
+            createdAt
+        FROM users
+        WHERE
+            name LIKE ?
+            OR email LIKE ?
+        ORDER BY userId DESC
+    `;
+
+    const keyword = `%${search}%`;
+
+    db.query(sql, [keyword, keyword], (err, members) => {
+
+        if (err) {
+            console.error(err);
+            return res.status(500).send('Unable to load members.');
+        }
+
+        res.render('admin/members', {
+            pageTitle: 'Member List',
+            members,
+            search,
+            user: req.session.user,
+            currentPage: 'members'
+        });
+
+    });
+
+});
+
+
+// ==========================================================
+// ADD MEMBER FORM
+// ==========================================================
+
+app.get('/admin/members/add', adminOnly, (req, res) => {
+
+    res.render('admin/memberForm', {
+
+        pageTitle: 'Add Member',
+        formMode: 'add',
+        member: null,
+        user: req.session.user,
+        currentPage: 'members'
+
+    });
+
+});
+
+// ==========================================================
+// EDIT MEMBER
+// ==========================================================
+
+// Show edit member form
+app.get('/admin/members/edit/:userId', adminOnly, (req, res) => {
+
+    db.query(
+        'SELECT * FROM users WHERE userId = ?',
+        [req.params.userId],
+        (err, results) => {
+
+            if (err || results.length === 0) {
+                return res.status(404).send('Member not found.');
+            }
+
+            res.render('admin/editMember', {
+
+                pageTitle: 'Edit Member',
+                member: results[0],
+                user: req.session.user,
+                currentPage: 'members'
+
+            });
+
+        }
+    );
+
+});
+
+
+// Update member
+app.post('/admin/members/edit/:userId', adminOnly, (req, res) => {
+
+    const { name, email, role } = req.body;
+
+    db.query(
+
+        `
+        UPDATE users
+        SET
+            name = ?,
+            email = ?,
+            role = ?
+        WHERE userId = ?
+        `,
+
+        [
+            name,
+            email,
+            role,
+            req.params.userId
+        ],
+
+        (err) => {
+
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Unable to update member.');
+            }
+
+            res.redirect('/admin/members');
+
+        }
+
+    );
+
+});
+
+// ==========================================================
+// DELETE MEMBER
+// ==========================================================
+
+app.post('/admin/members/delete/:userId', adminOnly, (req, res) => {
+
+    if (Number(req.params.userId) === req.session.user.userId) {
+        return res.status(400).send('You cannot delete your own account.');
     }
-);
 
+    db.query(
 
-// ----------------------------------------------------------
+        'DELETE FROM users WHERE userId = ?',
+
+        [req.params.userId],
+
+        (err) => {
+
+            if (err) {
+                console.error(err);
+                return res.status(500).send('Unable to delete member.');
+            }
+
+            res.redirect('/admin/members');
+
+        }
+
+    );
+
+});
+
+// ==========================================================
 // ADMIN PROFILE
-// ----------------------------------------------------------
+// ==========================================================
 
-app.get(
-    '/admin/profile',
-    adminOnly,
-    (req, res) => {
+app.get('/admin/profile', adminOnly, (req, res) => {
 
-        res.render('admin/profile', {
+    res.render('admin/profile', {
 
-            pageTitle: 'My Profile',
+        pageTitle: 'My Profile',
+        user: req.session.user,
+        currentPage: 'profile'
 
-            user: req.session.user
+    });
 
-        });
-
-    }
-);
+});
 
 
 // ==========================================================
