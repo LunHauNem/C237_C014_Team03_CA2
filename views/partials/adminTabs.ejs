@@ -1,0 +1,56 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark px-3">
+  <a class="navbar-brand fw-bold" href="/admin/dashboard">
+    <i class="bi bi-book-half"></i> Library Admin
+  </a>
+
+  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="mainNav">
+    <ul class="navbar-nav me-auto">
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'books' ? 'active fw-bold text-warning' : '' %>" href="/admin/books">
+          <i class="bi bi-journal-text"></i> Book List
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'members' ? 'active fw-bold text-warning' : '' %>" href="/admin/members">
+          <i class="bi bi-people"></i> Member List
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= currentPage === 'profile' ? 'active fw-bold text-warning' : '' %>" href="/admin/profile">
+          <i class="bi bi-person-circle"></i> Profile
+        </a>
+      </li>
+    </ul>
+
+    <% if (user) { %>
+      <span class="navbar-text text-light me-3">
+        Signed in as <strong><%= user.name %></strong>
+      </span>
+      <a href="/logout" class="btn btn-outline-light btn-sm">
+        <i class="bi bi-box-arrow-right"></i> Logout
+      </a>
+    <% } %>
+  </div>
+</nav>
+
+<% if (successMessage) { %>
+<div class="container mt-3">
+    <div class="alert alert-success alert-dismissible fade show">
+        <%= successMessage %>
+        <button class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+<% } %>
+
+<% if (errorMessage) { %>
+<div class="container mt-3">
+    <div class="alert alert-danger alert-dismissible fade show">
+        <%= errorMessage %>
+        <button class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
+</div>
+<% } %>

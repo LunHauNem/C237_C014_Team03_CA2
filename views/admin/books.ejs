@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <%- include('../partials/header') %>
+</head>
+<body class="bg-light">
+  <%- include('../partials/adminTabs') %>
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+      <h2 class="mb-0"><i class="bi bi-journal-text"></i> Book List</h2>
+      <a href="/admin/books/add" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Add New Book
+      </a>
+    </div>
+
+    <form action="/admin/books" method="GET" class="mb-3">
+      <div class="input-group">
+        <input type="text" name="search" value="<%= search %>" class="form-control"
+               placeholder="Search by title, author, or ISBN...">
+        <button class="btn btn-outline-dark" type="submit"><i class="bi bi-search"></i> Search</button>
+        <% if (search) { %>
+          <a href="/admin/books" class="btn btn-outline-secondary">Clear</a>
+        <% } %>
+      </div>
+    </form>
+
+    <div class="card shadow-sm border-0">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-dark">
+            <tr>
+              <th>#</th>
+              <th>Title</th>
+              <th>Author</th>
+              <th>ISBN</th>
+              <th>Category</th>
+              <th>Available / Total</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (books.length === 0) { %>
+              <tr><td colspan="7" class="text-center text-muted py-4">No books found.</td></tr>
+            <% } %>
+            <% books.forEach(book => { %>
+              <tr>
+                <td><%= book.bookId %></td>
+                <td><%= book.title %></td>
+                <td><%= book.author %></td>
+                <td><%= book.isbn %></td>
+                <td><span class="badge bg-secondary"><%= book.categoryName %></span></td>
+                <td>
+                  <span class="badge bg-<%= book.availableQuantity > 0 ? 'success' : 'danger' %>">
+                    <%= book.availableQuantity %> / <%= book.quantity %>
+                  </span>
+                </td>
+                <td class="text-end">
+                  <a href="/admin/books/edit/<%= book.bookId %>" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit
+                  </a>
+                  <form action="/admin/books/delete/<%= book.bookId %>?_method=DELETE" method="POST" class="d-inline"
+                        onsubmit="return confirm('Delete \'<%= book.title %>\'? This cannot be undone.');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                      <i class="bi bi-trash"></i> Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+</body>
+</html>

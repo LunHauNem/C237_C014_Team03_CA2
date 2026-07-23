@@ -1,0 +1,17 @@
+<%- include('partials/header', {
+    pageTitle: pageTitle,
+    user: user
+}) %>
+
+<main class="container py-5">
+    <section class="empty-state text-center">
+        <i class="bi bi-exclamation-circle empty-icon"></i>
+        <h1 class="h3 mt-3">Book not found</h1>
+        <p class="text-muted">
+            The requested book does not exist or may have been removed.
+        </p>
+        <a href="/" class="btn btn-primary">Return to Homepage</a>
+    </section>
+</main>
+
+<%- include('partials/footer') %>
