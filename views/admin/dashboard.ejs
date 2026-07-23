@@ -1,63 +1,115 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <%- include('../partials/header') %>
 </head>
 <body class="bg-light">
 <%- include('../partials/adminTabs') %>
-
+ 
   <div class="container py-4">
-    <h2 class="mb-1">Welcome back, <%= user.name %> 👋</h2>
-    <p class="text-muted mb-4">Here's what's happening in the library today.</p>
-
+<h2 class="mb-1">Welcome back, <%= user.name %> 👋</h2>
+<p class="text-muted mb-4">Here's what's happening in the library today.</p>
+ 
     <div class="row g-3">
-      <div class="col-md-4 col-lg-2">
-        <div class="card text-center shadow-sm border-0 h-100">
-          <div class="card-body">
-            <i class="bi bi-journal-text fs-2 text-primary"></i>
-            <h3 class="mt-2 mb-0"><%= stats.totalBooks %></h3>
-            <small class="text-muted">Total Books</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card text-center shadow-sm border-0 h-100">
-          <div class="card-body">
-            <i class="bi bi-people fs-2 text-success"></i>
-            <h3 class="mt-2 mb-0"><%= stats.totalMembers %></h3>
-            <small class="text-muted">Members</small>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-4 col-lg-2">
-        <div class="card text-center shadow-sm border-0 h-100">
-          <div class="card-body">
-            <i class="bi bi-arrow-left-right fs-2 text-info"></i>
-            <h3 class="mt-2 mb-0"><%= stats.totalBorrowed %></h3>
-            <small class="text-muted">Currently Borrowed</small>
-          </div>
-        </div>
-      </div>
-    </div>
+<div class="col-md-4 col-lg-2">
+<div class="card text-center shadow-sm border-0 h-100">
+<div class="card-body">
+<i class="bi bi-journal-text fs-2 text-primary"></i>
+<h3 class="mt-2 mb-0" id="stat-totalBooks"><%= stats.totalBooks %></h3>
+<small class="text-muted">Total Books</small>
+</div>
+</div>
+</div>
+<div class="col-md-4 col-lg-2">
+<div class="card text-center shadow-sm border-0 h-100">
+<div class="card-body">
+<i class="bi bi-people fs-2 text-success"></i>
+<h3 class="mt-2 mb-0" id="stat-totalMembers"><%= stats.totalMembers %></h3>
+<small class="text-muted">Members</small>
+</div>
+</div>
+</div>
+<div class="col-md-4 col-lg-2">
+<div class="card text-center shadow-sm border-0 h-100">
+<div class="card-body">
+<i class="bi bi-arrow-left-right fs-2 text-info"></i>
+<h3 class="mt-2 mb-0" id="stat-totalBorrowed"><%= stats.totalBorrowed %></h3>
+<small class="text-muted">Currently Borrowed</small>
+</div>
+</div>
+</div>
+<div class="col-md-4 col-lg-2">
+<div class="card text-center shadow-sm border-0 h-100">
+<div class="card-body">
+<i class="bi bi-exclamation-triangle fs-2 text-danger"></i>
+<h3 class="mt-2 mb-0" id="stat-totalOverdue"><%= stats.totalOverdue %></h3>
+<small class="text-muted">Overdue</small>
+</div>
+</div>
+</div>
+<div class="col-md-4 col-lg-2">
+<div class="card text-center shadow-sm border-0 h-100">
+<div class="card-body">
+<i class="bi bi-cash-coin fs-2 text-warning"></i>
+<h3 class="mt-2 mb-0" id="stat-unpaidFines"><%= stats.unpaidFines %></h3>
+<small class="text-muted">Unpaid Fines</small>
+</div>
+</div>
+</div>
+</div>
+ 
     <div class="row mt-4 g-3">
-      <div class="col-md-4">
-        <a href="/admin/books" class="btn btn-outline-primary w-100 py-3">
-          <i class="bi bi-journal-text"></i> Manage Book List
-        </a>
-      </div>
-      <div class="col-md-4">
-        <a href="/admin/members" class="btn btn-outline-success w-100 py-3">
-          <i class="bi bi-people"></i> Manage Member List
-        </a>
-      </div>
-      <div class="col-md-4">
-        <a href="/admin/profile" class="btn btn-outline-secondary w-100 py-3">
-          <i class="bi bi-person-circle"></i> Edit My Profile
-        </a>
-      </div>
-    </div>
-  </div>
-
+<div class="col-md-4">
+<a href="/admin/books" class="btn btn-outline-primary w-100 py-3">
+<i class="bi bi-journal-text"></i> Manage Book List
+</a>
+</div>
+<div class="col-md-4">
+<a href="/admin/members" class="btn btn-outline-success w-100 py-3">
+<i class="bi bi-people"></i> Manage Member List
+</a>
+</div>
+<div class="col-md-4">
+<a href="/admin/profile" class="btn btn-outline-secondary w-100 py-3">
+<i class="bi bi-person-circle"></i> Edit My Profile
+</a>
+</div>
+</div>
+</div>
+ 
   <%- include('../partials/footer') %>
+ 
+  <script>
+
+    async function refreshDashboardStats() {
+
+      try {
+
+        const res = await fetch('/admin/api/stats');
+
+        if (!res.ok) return;
+
+        const stats = await res.json();
+ 
+        document.getElementById('stat-totalBooks').textContent = stats.totalBooks;
+
+        document.getElementById('stat-totalMembers').textContent = stats.totalMembers;
+
+        document.getElementById('stat-totalBorrowed').textContent = stats.totalBorrowed;
+
+        document.getElementById('stat-totalOverdue').textContent = stats.totalOverdue;
+
+        document.getElementById('stat-unpaidFines').textContent = stats.unpaidFines;
+
+      } catch (err) {
+
+        console.error('Failed to refresh dashboard stats:', err);
+
+      }
+
+    }
+ 
+    setInterval(refreshDashboardStats, 5000); // refresh every 5 seconds
+</script>
 </body>
 </html>
+ 
