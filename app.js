@@ -989,7 +989,7 @@ app.get(
             unpaidFines: 0
         };
 
-        res.render('dashboard', {
+        res.render('admin/dashboard', {
             pageTitle: 'Admin Dashboard',
             user: req.session.user,
             stats
@@ -1016,7 +1016,7 @@ app.get(
 // Book listing
 
 app.get(
-    '/admin/books',
+    '/admin/book',
     adminOnly,
     (req, res) => {
 
@@ -1048,7 +1048,7 @@ app.get(
                     return res.status(500).send('Database Error');
                 }
 
-                res.render('members', {
+                res.render('admin/book', {
                     pageTitle: 'Books',
                     books,
                     search,
@@ -1065,7 +1065,7 @@ app.get(
 // Add Book page
 
 app.get(
-    '/admin/books/add',
+    '/admin/bookForm',
     adminOnly,
     (req, res) => {
 
@@ -1078,7 +1078,7 @@ app.get(
                     return res.status(500).send('Database Error');
                 }
 
-                res.render('bookForm', {
+                res.render('admin/bookForm', {
                     pageTitle: 'Add Book',
                     categories,
                     book: null,
@@ -1100,7 +1100,7 @@ app.get(
 // Member List
 
 app.get(
-    '/admin/members',
+    '/admin/member',
     adminOnly,
     (req, res) => {
 
@@ -1127,7 +1127,7 @@ app.get(
                     return res.status(500).send('Database Error');
                 }
 
-                res.render('members', {
+                res.render('admin/member', {
                     pageTitle: 'Members',
                     members,
                     search,
@@ -1144,11 +1144,11 @@ app.get(
 // Add Member page
 
 app.get(
-    '/admin/members/add',
+    '/admin/memberForm',
     adminOnly,
     (req, res) => {
 
-        res.render('memberForm', {
+        res.render('admin/memberForm', {
 
             pageTitle: 'Add Member',
 
@@ -1173,7 +1173,7 @@ app.get(
     adminOnly,
     (req, res) => {
 
-        res.render('profile', {
+        res.render('admin/profile', {
 
             pageTitle: 'My Profile',
 
