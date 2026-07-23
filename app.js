@@ -1449,7 +1449,7 @@ app.get('/admin/books', adminOnly, (req, res) => {
 // ADD BOOK FORM
 // ==========================================================
 
-app.get('/admin/books/add', adminOnly, (req, res) => {
+app.get('/admin/bookForm', adminOnly, (req, res) => {
 
     db.query(
         `
@@ -1485,7 +1485,7 @@ app.get('/admin/books/add', adminOnly, (req, res) => {
 // CREATE BOOK
 // ==========================================================
 
-app.post('/admin/books/add', adminOnly, (req, res) => {
+app.post('/admin/bookForm', adminOnly, (req, res) => {
 
     const {
         title,
@@ -1545,7 +1545,7 @@ app.post('/admin/books/add', adminOnly, (req, res) => {
 // ==========================================================
 
 // Show edit form
-app.get('/admin/books/edit/:bookId', adminOnly, (req, res) => {
+app.get('/admin/editBook/:bookId', adminOnly, (req, res) => {
 
     db.query(
 
@@ -1595,7 +1595,7 @@ app.get('/admin/books/edit/:bookId', adminOnly, (req, res) => {
 
 
 // Save changes
-app.post('/admin/books/edit/:bookId', adminOnly, (req, res) => {
+app.post('/admin/editBook/:bookId', adminOnly, (req, res) => {
 
     const {
 
@@ -1728,7 +1728,7 @@ app.get('/admin/members', adminOnly, (req, res) => {
 // ADD MEMBER FORM
 // ==========================================================
 
-app.get('/admin/members/add', adminOnly, (req, res) => {
+app.get('/admin/memberForm', adminOnly, (req, res) => {
 
     res.render('admin/memberForm', {
 
@@ -1747,7 +1747,7 @@ app.get('/admin/members/add', adminOnly, (req, res) => {
 // ==========================================================
 
 // Show edit member form
-app.get('/admin/members/edit/:userId', adminOnly, (req, res) => {
+app.get('/admin/memberForm/:userId', adminOnly, (req, res) => {
 
     db.query(
         'SELECT * FROM users WHERE userId = ?',
@@ -1774,7 +1774,7 @@ app.get('/admin/members/edit/:userId', adminOnly, (req, res) => {
 
 
 // Update member
-app.post('/admin/members/edit/:userId', adminOnly, (req, res) => {
+app.post('/admin/memberForm/:userId', adminOnly, (req, res) => {
 
     const { name, email, role } = req.body;
 
