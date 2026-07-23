@@ -37,6 +37,12 @@
 
     --border-colour: #dec9b0;
 
+    --available-green: #2e7d32;
+    --available-green-hover: #256629;
+
+    --unavailable-red: #b02a37;
+    --unavailable-red-dark: #92232e;
+
     --small-shadow: 0 6px 18px rgba(61, 41, 31, 0.08);
     --medium-shadow: 0 14px 34px rgba(61, 41, 31, 0.12);
     --large-shadow: 0 20px 50px rgba(61, 41, 31, 0.15);
@@ -126,8 +132,8 @@ img {
 
 .bg-success,
 .text-bg-success {
-    background-color: var(--brown-600) !important;
-    color: var(--text-light) !important;
+    background-color: var(--available-green) !important;
+    color: #ffffff !important;
 }
 
 .bg-info,
@@ -144,8 +150,8 @@ img {
 
 .bg-danger,
 .text-bg-danger {
-    background-color: var(--brown-900) !important;
-    color: var(--text-light) !important;
+    background-color: var(--unavailable-red) !important;
+    color: #ffffff !important;
 }
 
 .bg-dark {
@@ -163,7 +169,7 @@ img {
 
 .text-success,
 .link-success {
-    color: var(--brown-600) !important;
+    color: var(--available-green) !important;
 }
 
 .text-info,
@@ -178,7 +184,7 @@ img {
 
 .text-danger,
 .link-danger {
-    color: var(--brown-900) !important;
+    color: var(--unavailable-red) !important;
 }
 
 .text-muted {
@@ -416,7 +422,7 @@ img {
     background-color: var(--card-background);
 }
 
-/* This removes the blue Add New Book header */
+/* Removes Bootstrap blue from form card headers */
 
 .card-header.bg-primary,
 .card-header.text-bg-primary,
@@ -462,9 +468,8 @@ img {
     padding: clamp(28px, 4vw, 45px);
 }
 
-.required,
-.text-danger {
-    color: var(--brown-700) !important;
+.required {
+    color: var(--unavailable-red) !important;
 }
 
 textarea.form-control {
@@ -561,23 +566,31 @@ textarea.form-control {
     position: absolute;
     top: 16px;
     right: 16px;
-    padding: 7px 12px;
-    border: 1px solid rgba(255, 255, 255, 0.18);
+    z-index: 2;
+    padding: 8px 14px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 999px;
-    font-size: 0.75rem;
+    color: #ffffff;
+    font-size: 0.78rem;
     font-weight: 800;
+    letter-spacing: 0.1px;
+    box-shadow: 0 4px 12px rgba(44, 30, 23, 0.18);
 }
+
+/* Available badge is green */
 
 .availability-badge.available,
-.available {
-    background-color: var(--brown-700);
-    color: var(--beige-50);
+span.availability-badge.available {
+    background-color: var(--available-green) !important;
+    color: #ffffff !important;
 }
 
+/* Unavailable badge is red */
+
 .availability-badge.unavailable,
-.unavailable {
-    background-color: var(--brown-950);
-    color: var(--beige-200);
+span.availability-badge.unavailable {
+    background-color: var(--unavailable-red) !important;
+    color: #ffffff !important;
 }
 
 /* =========================================================
@@ -633,7 +646,6 @@ textarea.form-control {
 }
 
 .btn-outline-primary,
-.btn-outline-success,
 .btn-outline-info,
 .btn-outline-warning {
     border-color: var(--brown-600) !important;
@@ -642,7 +654,6 @@ textarea.form-control {
 }
 
 .btn-outline-primary:hover,
-.btn-outline-success:hover,
 .btn-outline-info:hover,
 .btn-outline-warning:hover {
     border-color: var(--brown-700) !important;
@@ -650,18 +661,32 @@ textarea.form-control {
     color: var(--beige-50) !important;
 }
 
+.btn-success,
+.btn-outline-success {
+    border-color: var(--available-green) !important;
+    background-color: var(--available-green) !important;
+    color: #ffffff !important;
+}
+
+.btn-success:hover,
+.btn-outline-success:hover {
+    border-color: var(--available-green-hover) !important;
+    background-color: var(--available-green-hover) !important;
+    color: #ffffff !important;
+}
+
 .btn-danger,
 .btn-outline-danger {
-    border-color: var(--brown-900) !important;
-    background-color: var(--brown-900) !important;
-    color: var(--beige-50) !important;
+    border-color: var(--unavailable-red) !important;
+    background-color: var(--unavailable-red) !important;
+    color: #ffffff !important;
 }
 
 .btn-danger:hover,
 .btn-outline-danger:hover {
-    border-color: var(--brown-950) !important;
-    background-color: var(--brown-950) !important;
-    color: var(--beige-50) !important;
+    border-color: var(--unavailable-red-dark) !important;
+    background-color: var(--unavailable-red-dark) !important;
+    color: #ffffff !important;
 }
 
 /* =========================================================
@@ -925,13 +950,6 @@ textarea.form-control {
     color: var(--brown-600) !important;
 }
 
-.text-primary i,
-.text-success i,
-.text-info i,
-.text-warning i {
-    color: var(--brown-600) !important;
-}
-
 /* =========================================================
    TABLES
 ========================================================= */
@@ -989,12 +1007,20 @@ textarea.form-control {
 }
 
 .badge.bg-primary,
-.badge.bg-success,
 .badge.bg-info,
-.badge.bg-warning,
-.badge.bg-danger {
+.badge.bg-warning {
     background-color: var(--brown-700) !important;
     color: var(--beige-50) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--available-green) !important;
+    color: #ffffff !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--unavailable-red) !important;
+    color: #ffffff !important;
 }
 
 /* =========================================================
@@ -1012,17 +1038,17 @@ textarea.form-control {
 
 .alert-success,
 .success-message {
-    border-color: var(--beige-600);
-    background-color: var(--beige-200);
-    color: var(--brown-800);
+    border-color: #9fbea1;
+    background-color: #e7f2e8;
+    color: #245c28;
 }
 
 .alert-danger,
 .alert-error,
 .error-message {
-    border-color: var(--brown-400);
-    background-color: var(--beige-300);
-    color: var(--brown-950);
+    border-color: #d1a0a5;
+    background-color: #f8e5e7;
+    color: #84212c;
 }
 
 .alert-info,
