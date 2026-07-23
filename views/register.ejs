@@ -85,36 +85,6 @@
                     >
                 </div>
 
-                <!-- Account role selection -->
-                <div class="form-group">
-                    <label for="role">
-                        Account Role
-                    </label>
-
-                    <select
-                        id="role"
-                        name="role"
-                        required
-                    >
-                        <option value="">
-                            Select a role
-                        </option>
-
-                        <option
-                            value="member"
-                            <%= formData.role === 'member' ? 'selected' : '' %>
-                        >
-                            Member
-                        </option>
-
-                        <option
-                            value="admin"
-                            <%= formData.role === 'admin' ? 'selected' : '' %>
-                        >
-                            Admin
-                        </option>
-                    </select>
-                </div>
 
                 <!-- Password -->
                 <div class="form-group">

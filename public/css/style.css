@@ -38,10 +38,12 @@
     --border-colour: #dec9b0;
 
     --available-green: #2e7d32;
-    --available-green-hover: #256629;
+    --available-green-dark: #256629;
+    --available-green-light: #e8f3e9;
 
     --unavailable-red: #b02a37;
     --unavailable-red-dark: #92232e;
+    --unavailable-red-light: #f7e6e8;
 
     --small-shadow: 0 6px 18px rgba(61, 41, 31, 0.08);
     --medium-shadow: 0 14px 34px rgba(61, 41, 31, 0.12);
@@ -49,6 +51,30 @@
 
     --heading-font: "Lora", Georgia, serif;
     --body-font: "Nunito Sans", Arial, sans-serif;
+
+    --bs-primary: #674936;
+    --bs-primary-rgb: 103, 73, 54;
+
+    --bs-secondary: #947158;
+    --bs-secondary-rgb: 148, 113, 88;
+
+    --bs-success: #2e7d32;
+    --bs-success-rgb: 46, 125, 50;
+
+    --bs-danger: #b02a37;
+    --bs-danger-rgb: 176, 42, 55;
+
+    --bs-warning: #dac3a7;
+    --bs-warning-rgb: 218, 195, 167;
+
+    --bs-info: #947158;
+    --bs-info-rgb: 148, 113, 88;
+
+    --bs-dark: #2c1e17;
+    --bs-dark-rgb: 44, 30, 23;
+
+    --bs-light: #f7f1e8;
+    --bs-light-rgb: 247, 241, 232;
 }
 
 /* =========================================================
@@ -67,16 +93,20 @@ html {
 body {
     min-height: 100vh;
     margin: 0;
-    background-color: var(--beige-100);
+    background-color: var(--beige-100) !important;
     color: var(--text-dark);
     font-family: var(--body-font);
     font-size: 16px;
     line-height: 1.6;
 }
 
-main {
+main,
+.content-wrapper,
+.page-content,
+.admin-content,
+.dashboard-content {
     min-height: calc(100vh - 150px);
-    background-color: var(--beige-100);
+    background-color: var(--beige-100) !important;
 }
 
 h1,
@@ -130,6 +160,12 @@ img {
     color: var(--text-light) !important;
 }
 
+.bg-secondary,
+.text-bg-secondary {
+    background-color: var(--brown-500) !important;
+    color: var(--text-light) !important;
+}
+
 .bg-success,
 .text-bg-success {
     background-color: var(--available-green) !important;
@@ -165,6 +201,11 @@ img {
 .text-primary,
 .link-primary {
     color: var(--brown-700) !important;
+}
+
+.text-secondary,
+.link-secondary {
+    color: var(--brown-500) !important;
 }
 
 .text-success,
@@ -216,7 +257,7 @@ img {
 }
 
 /* =========================================================
-   MAIN LIBRARY NAVBAR
+   MAIN NAVBAR
 ========================================================= */
 
 .library-navbar,
@@ -271,6 +312,36 @@ img {
 
 .navbar-toggler-icon {
     filter: brightness(0) invert(1);
+}
+
+/* =========================================================
+   ADMIN NAVBAR
+========================================================= */
+
+.admin-navbar,
+.admin-header,
+.dashboard-navbar {
+    background-color: var(--brown-950) !important;
+    color: var(--beige-50);
+}
+
+.admin-navbar .navbar-brand,
+.admin-header .navbar-brand,
+.dashboard-navbar .navbar-brand {
+    color: var(--beige-50) !important;
+}
+
+.admin-navbar .nav-link,
+.admin-header .nav-link,
+.dashboard-navbar .nav-link {
+    color: var(--beige-400) !important;
+}
+
+.admin-navbar .nav-link:hover,
+.admin-header .nav-link:hover,
+.dashboard-navbar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.08);
+    color: var(--beige-50) !important;
 }
 
 /* =========================================================
@@ -395,17 +466,17 @@ img {
 ========================================================= */
 
 .card {
-    border: 1px solid var(--border-colour);
+    border: 1px solid var(--border-colour) !important;
     border-radius: 16px;
-    background-color: var(--card-background);
+    background-color: var(--card-background) !important;
     box-shadow: var(--small-shadow);
 }
 
 .card-header {
     padding: 20px 26px;
-    border-bottom: 1px solid var(--border-colour);
-    background-color: var(--brown-800);
-    color: var(--text-light);
+    border-bottom: 1px solid var(--border-colour) !important;
+    background-color: var(--brown-800) !important;
+    color: var(--text-light) !important;
 }
 
 .card-header h1,
@@ -413,16 +484,15 @@ img {
 .card-header h3,
 .card-header h4,
 .card-header h5,
-.card-header h6 {
+.card-header h6,
+.card-header i {
     margin: 0;
-    color: var(--text-light);
+    color: var(--text-light) !important;
 }
 
 .card-body {
-    background-color: var(--card-background);
+    background-color: var(--card-background) !important;
 }
-
-/* Removes Bootstrap blue from form card headers */
 
 .card-header.bg-primary,
 .card-header.text-bg-primary,
@@ -430,26 +500,13 @@ img {
 .edit-book-header,
 .form-card-header {
     padding: 22px 28px;
-    border-bottom: 1px solid var(--border-colour);
+    border-bottom: 1px solid var(--border-colour) !important;
     background-color: var(--brown-800) !important;
     color: var(--beige-50) !important;
 }
 
-.card-header.bg-primary h1,
-.card-header.bg-primary h2,
-.card-header.bg-primary h3,
-.card-header.bg-primary i,
-.card-header.text-bg-primary h1,
-.card-header.text-bg-primary h2,
-.card-header.text-bg-primary h3,
-.card-header.text-bg-primary i,
-.add-book-header h1,
-.add-book-header i {
-    color: var(--beige-50) !important;
-}
-
 /* =========================================================
-   ADD BOOK AND EDIT BOOK FORMS
+   ADD AND EDIT BOOK FORMS
 ========================================================= */
 
 .form-card,
@@ -458,7 +515,7 @@ img {
     overflow: hidden;
     border: 1px solid var(--border-colour) !important;
     border-radius: 18px;
-    background-color: var(--card-background);
+    background-color: var(--card-background) !important;
     box-shadow: var(--medium-shadow);
 }
 
@@ -484,9 +541,9 @@ textarea.form-control {
 .book-card {
     height: 100%;
     overflow: hidden;
-    border: 1px solid var(--border-colour);
+    border: 1px solid var(--border-colour) !important;
     border-radius: 16px;
-    background-color: var(--card-background);
+    background-color: var(--card-background) !important;
     box-shadow: var(--small-shadow);
     transition:
         transform 0.25s ease,
@@ -573,19 +630,14 @@ textarea.form-control {
     color: #ffffff;
     font-size: 0.78rem;
     font-weight: 800;
-    letter-spacing: 0.1px;
     box-shadow: 0 4px 12px rgba(44, 30, 23, 0.18);
 }
-
-/* Available badge is green */
 
 .availability-badge.available,
 span.availability-badge.available {
     background-color: var(--available-green) !important;
     color: #ffffff !important;
 }
-
-/* Unavailable badge is red */
 
 .availability-badge.unavailable,
 span.availability-badge.unavailable {
@@ -634,18 +686,20 @@ span.availability-badge.unavailable {
 }
 
 .btn-secondary {
-    border-color: var(--beige-600) !important;
-    background-color: var(--beige-300) !important;
-    color: var(--brown-900) !important;
+    border-color: var(--brown-600) !important;
+    background-color: var(--brown-600) !important;
+    color: var(--beige-50) !important;
 }
 
-.btn-secondary:hover {
-    border-color: var(--brown-500) !important;
-    background-color: var(--beige-500) !important;
-    color: var(--brown-950) !important;
+.btn-secondary:hover,
+.btn-secondary:focus {
+    border-color: var(--brown-950) !important;
+    background-color: var(--brown-950) !important;
+    color: var(--beige-50) !important;
 }
 
 .btn-outline-primary,
+.btn-outline-secondary,
 .btn-outline-info,
 .btn-outline-warning {
     border-color: var(--brown-600) !important;
@@ -654,6 +708,7 @@ span.availability-badge.unavailable {
 }
 
 .btn-outline-primary:hover,
+.btn-outline-secondary:hover,
 .btn-outline-info:hover,
 .btn-outline-warning:hover {
     border-color: var(--brown-700) !important;
@@ -670,8 +725,8 @@ span.availability-badge.unavailable {
 
 .btn-success:hover,
 .btn-outline-success:hover {
-    border-color: var(--available-green-hover) !important;
-    background-color: var(--available-green-hover) !important;
+    border-color: var(--available-green-dark) !important;
+    background-color: var(--available-green-dark) !important;
     color: #ffffff !important;
 }
 
@@ -709,10 +764,10 @@ span.availability-badge.unavailable {
     width: 100%;
     min-height: 49px;
     padding: 11px 14px;
-    border: 1px solid var(--border-colour);
+    border: 1px solid var(--border-colour) !important;
     border-radius: 9px;
-    background-color: var(--input-background);
-    color: var(--text-dark);
+    background-color: var(--input-background) !important;
+    color: var(--text-dark) !important;
     font-family: var(--body-font);
     font-size: 0.98rem;
     box-shadow: none;
@@ -729,11 +784,11 @@ span.availability-badge.unavailable {
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-    border-color: var(--brown-500);
-    background-color: var(--card-background);
+    border-color: var(--brown-500) !important;
+    background-color: var(--card-background) !important;
     color: var(--text-dark);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(148, 113, 88, 0.16);
+    box-shadow: 0 0 0 3px rgba(148, 113, 88, 0.16) !important;
 }
 
 .form-check-input {
@@ -760,7 +815,7 @@ span.availability-badge.unavailable {
     padding: 60px 20px;
     align-items: center;
     justify-content: center;
-    background-color: var(--beige-100);
+    background-color: var(--beige-100) !important;
 }
 
 .auth-card {
@@ -897,35 +952,6 @@ span.availability-badge.unavailable {
 }
 
 /* =========================================================
-   ADMIN NAVIGATION
-========================================================= */
-
-.admin-navbar,
-.admin-header,
-.dashboard-navbar {
-    background-color: var(--brown-950) !important;
-    color: var(--beige-50);
-}
-
-.admin-navbar .navbar-brand,
-.admin-header .navbar-brand,
-.dashboard-navbar .navbar-brand {
-    color: var(--beige-50) !important;
-}
-
-.admin-navbar .nav-link,
-.admin-header .nav-link,
-.dashboard-navbar .nav-link {
-    color: var(--beige-400) !important;
-}
-
-.admin-navbar .nav-link:hover,
-.admin-header .nav-link:hover,
-.dashboard-navbar .nav-link:hover {
-    color: var(--beige-50) !important;
-}
-
-/* =========================================================
    ADMIN DASHBOARD
 ========================================================= */
 
@@ -951,49 +977,243 @@ span.availability-badge.unavailable {
 }
 
 /* =========================================================
-   TABLES
+   BORROW HISTORY PAGE
+========================================================= */
+
+.borrow-history-page,
+.borrow-history-container,
+.history-page {
+    min-height: calc(100vh - 150px);
+    padding: 55px 0 70px;
+    background-color: var(--beige-100) !important;
+}
+
+.borrow-history-page h1,
+.borrow-history-container h1,
+.history-page h1 {
+    margin-bottom: 28px;
+    padding-bottom: 17px;
+    border-bottom: 2px solid var(--border-colour);
+    color: var(--brown-950) !important;
+    font-family: var(--heading-font);
+    font-size: clamp(2rem, 4vw, 2.7rem);
+}
+
+.borrow-history-card,
+.history-card {
+    padding: 25px;
+    border: 1px solid var(--border-colour);
+    border-radius: 16px;
+    background-color: var(--card-background);
+    box-shadow: var(--medium-shadow);
+}
+
+.borrow-history-actions,
+.history-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+/* =========================================================
+   ALL TABLES
 ========================================================= */
 
 .table-responsive {
-    overflow: hidden;
-    border: 1px solid var(--border-colour);
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-colour) !important;
     border-radius: 14px;
-    background-color: var(--card-background);
+    background-color: var(--card-background) !important;
     box-shadow: var(--small-shadow);
 }
 
-.table {
+.table,
+.borrow-history-table,
+.history-table,
+main table {
+    --bs-table-color: var(--text-dark);
+    --bs-table-bg: var(--card-background);
+    --bs-table-border-color: var(--border-colour);
+    --bs-table-striped-color: var(--text-dark);
+    --bs-table-striped-bg: var(--beige-50);
+    --bs-table-active-color: var(--text-dark);
+    --bs-table-active-bg: var(--beige-200);
+    --bs-table-hover-color: var(--text-dark);
+    --bs-table-hover-bg: var(--beige-200);
+
+    width: 100%;
     margin-bottom: 0;
-    border-color: var(--border-colour);
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--border-colour) !important;
+    border-radius: 12px;
+    background-color: var(--card-background) !important;
     color: var(--text-dark);
-    background-color: var(--card-background);
+    font-family: var(--body-font);
+    overflow: hidden;
+}
+
+/* Force Bootstrap table-dark into brown */
+
+.table-dark,
+.table > .table-dark,
+.table-dark > tr,
+.table-dark > tr > th,
+.table-dark > tr > td,
+thead.table-dark,
+thead.table-dark tr,
+thead.table-dark th {
+    --bs-table-color: var(--beige-50);
+    --bs-table-bg: var(--brown-900);
+    --bs-table-border-color: var(--brown-700);
+    --bs-table-striped-bg: var(--brown-850);
+    --bs-table-striped-color: var(--beige-50);
+    --bs-table-hover-bg: var(--brown-800);
+    --bs-table-hover-color: var(--beige-50);
+
+    background-color: var(--brown-900) !important;
+    color: var(--beige-50) !important;
 }
 
 .table thead,
-.table-dark,
-.table-primary {
+.borrow-history-table thead,
+.history-table thead,
+main table thead {
     background-color: var(--brown-900) !important;
     color: var(--beige-50) !important;
 }
 
-.table thead th {
-    border-color: var(--brown-800);
+.table thead tr,
+.borrow-history-table thead tr,
+.history-table thead tr,
+main table thead tr {
+    background-color: var(--brown-900) !important;
+}
+
+.table thead th,
+.borrow-history-table thead th,
+.history-table thead th,
+main table thead th {
+    padding: 15px 14px;
+    border-right: 1px solid var(--brown-700) !important;
+    border-bottom: 0 !important;
     background-color: var(--brown-900) !important;
     color: var(--beige-50) !important;
+    font-size: 0.9rem;
+    font-weight: 800;
+    line-height: 1.4;
+    text-align: left;
+    vertical-align: middle;
 }
 
-.table > :not(caption) > * > * {
-    padding: 14px;
-    border-color: var(--border-colour);
-    background-color: transparent;
+.table thead th:last-child,
+.borrow-history-table thead th:last-child,
+.history-table thead th:last-child,
+main table thead th:last-child {
+    border-right: 0 !important;
 }
 
-.table-striped > tbody > tr:nth-of-type(odd) > * {
-    background-color: var(--beige-50);
+.table tbody td,
+.borrow-history-table tbody td,
+.history-table tbody td,
+main table tbody td {
+    padding: 15px 14px;
+    border-right: 1px solid var(--border-colour) !important;
+    border-bottom: 1px solid var(--border-colour) !important;
+    background-color: var(--card-background) !important;
+    color: var(--text-dark) !important;
+    font-size: 0.92rem;
+    line-height: 1.55;
+    text-align: left;
+    vertical-align: top;
+    overflow-wrap: anywhere;
 }
 
-.table-hover > tbody > tr:hover > * {
-    background-color: var(--beige-200);
+.table tbody td:last-child,
+.borrow-history-table tbody td:last-child,
+.history-table tbody td:last-child,
+main table tbody td:last-child {
+    border-right: 0 !important;
+}
+
+.table tbody tr:last-child td,
+.borrow-history-table tbody tr:last-child td,
+.history-table tbody tr:last-child td,
+main table tbody tr:last-child td {
+    border-bottom: 0 !important;
+}
+
+.table tbody tr:nth-child(even) td,
+.borrow-history-table tbody tr:nth-child(even) td,
+.history-table tbody tr:nth-child(even) td,
+main table tbody tr:nth-child(even) td {
+    background-color: var(--beige-50) !important;
+}
+
+.table tbody tr:nth-child(odd) td,
+.borrow-history-table tbody tr:nth-child(odd) td,
+.history-table tbody tr:nth-child(odd) td,
+main table tbody tr:nth-child(odd) td {
+    background-color: var(--card-background) !important;
+}
+
+.table-hover > tbody > tr:hover > *,
+.table tbody tr:hover td,
+.borrow-history-table tbody tr:hover td,
+.history-table tbody tr:hover td,
+main table tbody tr:hover td {
+    background-color: var(--beige-200) !important;
+}
+
+/* Borrow history date columns */
+
+.borrow-history-table td:nth-child(4),
+.borrow-history-table td:nth-child(5),
+.borrow-history-table td:nth-child(6),
+.history-table td:nth-child(4),
+.history-table td:nth-child(5),
+.history-table td:nth-child(6) {
+    min-width: 175px;
+    color: var(--text-medium) !important;
+    font-size: 0.88rem;
+}
+
+/* Returned status */
+
+.borrow-history-table .text-success,
+.history-table .text-success,
+.borrow-history-page table .text-success,
+.returned-status,
+.status-returned {
+    display: inline-block;
+    padding: 6px 11px;
+    border: 1px solid #a9cbaa;
+    border-radius: 999px;
+    background-color: var(--available-green-light) !important;
+    color: var(--available-green) !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+/* Borrowed status */
+
+.borrow-history-table .text-danger,
+.history-table .text-danger,
+.borrow-history-page table .text-danger,
+.borrowed-status,
+.status-borrowed {
+    display: inline-block;
+    padding: 6px 11px;
+    border: 1px solid #dba9ae;
+    border-radius: 999px;
+    background-color: var(--unavailable-red-light) !important;
+    color: var(--unavailable-red) !important;
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
 }
 
 /* =========================================================
@@ -1007,6 +1227,7 @@ span.availability-badge.unavailable {
 }
 
 .badge.bg-primary,
+.badge.bg-secondary,
 .badge.bg-info,
 .badge.bg-warning {
     background-color: var(--brown-700) !important;
@@ -1039,7 +1260,7 @@ span.availability-badge.unavailable {
 .alert-success,
 .success-message {
     border-color: #9fbea1;
-    background-color: #e7f2e8;
+    background-color: var(--available-green-light);
     color: #245c28;
 }
 
@@ -1047,7 +1268,7 @@ span.availability-badge.unavailable {
 .alert-error,
 .error-message {
     border-color: #d1a0a5;
-    background-color: #f8e5e7;
+    background-color: var(--unavailable-red-light);
     color: #84212c;
 }
 
@@ -1087,7 +1308,7 @@ span.availability-badge.unavailable {
 .site-footer,
 footer {
     padding: 28px 0;
-    background-color: var(--brown-900);
+    background-color: var(--brown-900) !important;
     color: var(--beige-300);
 }
 
@@ -1223,6 +1444,13 @@ footer a:hover {
     .navbar-collapse {
         padding: 12px 0 5px;
     }
+
+    .table,
+    .borrow-history-table,
+    .history-table,
+    main table {
+        min-width: 950px;
+    }
 }
 
 @media (max-width: 767px) {
@@ -1272,6 +1500,18 @@ footer a:hover {
     .card-header h1,
     .card-header h2 {
         font-size: 1.5rem;
+    }
+
+    .borrow-history-page,
+    .borrow-history-container,
+    .history-page {
+        padding-top: 35px;
+        padding-bottom: 45px;
+    }
+
+    .borrow-history-card,
+    .history-card {
+        padding: 16px;
     }
 }
 

@@ -611,7 +611,6 @@ app.post('/register', async (req, res) => {
     const {
         name,
         email,
-        role,
         password,
         confirmPassword
     } = req.body;
@@ -619,15 +618,13 @@ app.post('/register', async (req, res) => {
     // Preserve the name and email if validation fails.
     const formData = {
         name: name || '',
-        email: email || '',
-        role: role || ''
+        email: email || ''
     };
 
     // Check whether all fields were completed.
     if (
         !name ||
         !email ||
-        !role ||
         !password ||
         !confirmPassword
     ) {
@@ -649,26 +646,6 @@ app.post('/register', async (req, res) => {
     // Convert the email to lowercase.
     const normalizedEmail =
         email.trim().toLowerCase();
-
-    // Only allow the roles supported by the database ENUM.
-    const allowedRoles = [
-        'member',
-        'admin'
-    ];
-
-    // Reject an invalid or changed role value.
-    if (!allowedRoles.includes(role)) {
-        return res.status(400).render(
-            'register',
-            {
-                pageTitle: 'Register',
-                errorMessage:
-                    'Please select a valid account role.',
-                successMessage: null,
-                formData: formData
-            }
-        );
-    }
 
     // Validate the member's name.
     if (cleanName.length < 2) {
@@ -781,7 +758,7 @@ app.post('/register', async (req, res) => {
                         cleanName,
                         normalizedEmail,
                         hashedPassword,
-                        role
+                        'member'
                     ],
                     (insertError) => {
                         if (insertError) {
