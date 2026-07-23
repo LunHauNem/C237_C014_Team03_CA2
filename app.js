@@ -380,42 +380,114 @@ app.get('/book/:bookId', (req, res) => {
 // ==========================================
 // ADD BOOKS
 // ==========================================
-app.get('/addBook', (req, res) => {
-    db.query(`SELECT categoryId, categoryName FROM categories ORDER BY categoryName`, (error, categories) => {
-        if (error) {
-            console.error('Error loading categories for addBook:', error);
-            return res.status(500).send('Unable to load the add book form.');
-        }
-        res.render('addBook', {
-            categories: categories,
-            error: '',
-            user: req.session.user || null
-        });
-    });
-});
+app.get(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
 
-app.post('/addBook', (req, res) => {
-    const {title,author,isbn,quantity,
-        availableQuantity,description,image,categoryId
-    } = req.body;
-    const sql = `
-        INSERT INTO books
-            (title, author, isbn, quantity, availableQuantity, description, image, categoryId)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-    db.query(
-        sql,
-        [title, author, isbn, quantity, availableQuantity, description, image, categoryId],
-        (error) => {
-            if (error) {
-                console.error('Error adding book:', error);
-                return res.status(500).send('Unable to add book.');
+        db.query(
+            `
+            SELECT
+                categoryId,
+                categoryName
+            FROM categories
+            ORDER BY categoryName
+            `,
+            (error, categories) => {
+
+                if (error) {
+
+                    console.error(error);
+
+                    return res.status(500).send('Unable to load categories.');
+
+                }
+
+                res.render('bookForm', {
+
+                    pageTitle: 'Add Book',
+
+                    formMode: 'add',
+
+                    book: null,
+
+                    categories,
+
+                    user: req.session.user
+
+                });
+
             }
-            return res.redirect('/');
-        }
-    );
-});
+        );
 
+    }
+);
+
+app.post(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
+
+        const {
+
+            title,
+            author,
+            isbn,
+            quantity,
+            availableQuantity,
+            description,
+            image,
+            categoryId
+
+        } = req.body;
+
+        const sql = `
+            INSERT INTO books
+            (
+                title,
+                author,
+                isbn,
+                quantity,
+                availableQuantity,
+                description,
+                image,
+                categoryId
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+
+        db.query(
+            sql,
+            [
+                title,
+                author,
+                isbn,
+                quantity,
+                availableQuantity,
+                description,
+                image,
+                categoryId
+            ],
+            (error) => {
+
+                if (error) {
+
+                    console.error(error);
+
+                    return res.status(500).send('Unable to add book.');
+
+                }
+
+                req.session.successMessage =
+                    'Book added successfully.';
+
+                res.redirect('/admin/books');
+
+            }
+        );
+
+    }
+);
 // ==========================================================
 // TEMPORARY BORROW ROUTE
 // ==========================================================
@@ -889,20 +961,226 @@ app.get(
 );
 
 // ==========================================================
-// ADMIN DASHBOARD
+// ADMIN ROUTES
 // ==========================================================
 
-// Only authenticated administrators can access this route.
+// Every admin route requires login + admin role.
+function adminOnly(req, res, next) {
+    checkAuthenticated(req, res, () => {
+        checkAdmin(req, res, next);
+    });
+}
+
+
+// ----------------------------------------------------------
+// Admin homepage
+// ----------------------------------------------------------
+
 app.get(
     '/admin',
-    checkAuthenticated,
-    checkAdmin,
+    adminOnly,
     (req, res) => {
-        return res.send(`
-            <h2>Admin Dashboard</h2>
-            <p>Welcome, ${req.session.user.name}.</p>
-            <a href="/">Return to homepage</a>
-        `);
+
+        const stats = {
+            totalBooks: 0,
+            totalMembers: 0,
+            totalBorrowed: 0,
+            totalOverdue: 0,
+            unpaidFines: 0
+        };
+
+        res.render('dashboard', {
+            pageTitle: 'Admin Dashboard',
+            user: req.session.user,
+            stats
+        });
+
+    }
+);
+
+
+// Optional
+app.get(
+    '/admin/dashboard',
+    adminOnly,
+    (req, res) => {
+        res.redirect('/admin');
+    }
+);
+
+
+// ----------------------------------------------------------
+// BOOKS
+// ----------------------------------------------------------
+
+// Book listing
+
+app.get(
+    '/admin/books',
+    adminOnly,
+    (req, res) => {
+
+        const search = req.query.search || '';
+
+        const sql = `
+            SELECT
+                b.*,
+                c.categoryName
+            FROM books b
+            INNER JOIN categories c
+            ON b.categoryId = c.categoryId
+            WHERE
+                b.title LIKE ?
+                OR b.author LIKE ?
+                OR b.isbn LIKE ?
+            ORDER BY b.bookId DESC
+        `;
+
+        const keyword = `%${search}%`;
+
+        db.query(
+            sql,
+            [keyword, keyword, keyword],
+            (err, books) => {
+
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('Database Error');
+                }
+
+                res.render('members', {
+                    pageTitle: 'Books',
+                    books,
+                    search,
+                    user: req.session.user
+                });
+
+            }
+        );
+
+    }
+);
+
+
+// Add Book page
+
+app.get(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
+
+        db.query(
+            'SELECT * FROM categories ORDER BY categoryName',
+            (err, categories) => {
+
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('Database Error');
+                }
+
+                res.render('bookForm', {
+                    pageTitle: 'Add Book',
+                    categories,
+                    book: null,
+                    formMode: 'add',
+                    user: req.session.user
+                });
+
+            }
+        );
+
+    }
+);
+
+
+// ----------------------------------------------------------
+// MEMBERS
+// ----------------------------------------------------------
+
+// Member List
+
+app.get(
+    '/admin/members',
+    adminOnly,
+    (req, res) => {
+
+        const search = req.query.search || '';
+
+        const sql = `
+            SELECT *
+            FROM users
+            WHERE
+                name LIKE ?
+                OR email LIKE ?
+            ORDER BY userId DESC
+        `;
+
+        const keyword = `%${search}%`;
+
+        db.query(
+            sql,
+            [keyword, keyword],
+            (err, members) => {
+
+                if (err) {
+                    console.error(err);
+                    return res.status(500).send('Database Error');
+                }
+
+                res.render('members', {
+                    pageTitle: 'Members',
+                    members,
+                    search,
+                    user: req.session.user
+                });
+
+            }
+        );
+
+    }
+);
+
+
+// Add Member page
+
+app.get(
+    '/admin/members/add',
+    adminOnly,
+    (req, res) => {
+
+        res.render('memberForm', {
+
+            pageTitle: 'Add Member',
+
+            formMode: 'add',
+
+            member: null,
+
+            user: req.session.user
+
+        });
+
+    }
+);
+
+
+// ----------------------------------------------------------
+// ADMIN PROFILE
+// ----------------------------------------------------------
+
+app.get(
+    '/admin/profile',
+    adminOnly,
+    (req, res) => {
+
+        res.render('profile', {
+
+            pageTitle: 'My Profile',
+
+            user: req.session.user
+
+        });
+
     }
 );
 
