@@ -21,52 +21,20 @@
                     availability before borrowing.
                 </p>
 
+                <!-- Search bar -->
                 <form action="/books" method="GET" class="hero-search mt-4">
                     <div class="input-group input-group-lg">
 
                         <input
-                            type="text"
+                            type="search"
                             name="search"
                             class="form-control"
-                            style="flex:3;"
                             placeholder="Search by title or author"
                             aria-label="Search books"
-                            value="<%= search %>"
+                            value="<%= typeof search !== 'undefined' ? search : '' %>"
                         >
 
-                        <select
-                            name="genre"
-                            class="form-select"
-                        >
-                            <option
-                                value="all"
-                                <%= selectedGenre === 'all'
-                                    ? 'selected'
-                                    : '' %>
-                            >
-                                All Genres
-                            </option>
-
-                            <% categories.forEach(category => { %>
-
-                                <option
-                                    value="<%= category.categoryId %>"
-                                    <%= String(selectedGenre) ===
-                                        String(category.categoryId)
-                                        ? 'selected'
-                                        : '' %>
-                                >
-                                    <%= category.categoryName %>
-                                </option>
-
-                            <% }) %>
-                        </select>
-
-                        <button
-                            class="btn btn-warning"
-                            type="submit"
-                            style="min-width:130px;"
-                        >
+                        <button class="btn btn-warning" type="submit">
                             <i class="bi bi-search me-1"></i>
                             Search
                         </button>
@@ -111,14 +79,6 @@
             <% books.forEach(book => { %>
 
                 <%
-                    /*
-                     * Prepare the book image filename.
-                     * This removes:
-                     * - Extra spaces
-                     * - Backslashes
-                     * - Accidental /images/ folder paths
-                     */
-
                     let imageFilename = '';
 
                     if (book.image) {
@@ -186,12 +146,12 @@
                             </p>
 
                             <div class="book-stock mt-auto mb-3">
-
                                 <i class="bi bi-book me-1"></i>
 
-                                <%= book.availableQuantity %> of
-                                <%= book.quantity %> available
-
+                                <%= book.availableQuantity %>
+                                of
+                                <%= book.quantity %>
+                                available
                             </div>
 
                             <a
@@ -202,6 +162,7 @@
                             </a>
 
                         </div>
+
                     </article>
 
                 </div>
