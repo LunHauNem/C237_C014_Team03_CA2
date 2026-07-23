@@ -135,6 +135,20 @@ function checkAuthenticated(req, res, next) {
     return res.redirect('/login');
 }
 
+function checkMember(req, res, next) {
+    if (
+        req.session.user &&
+        req.session.user.role === 'member'
+    ) {
+        return next();
+    }
+
+    req.session.errorMessage =
+        'Member access only.';
+
+    return res.redirect('/');
+}
+
 // Check whether the logged-in user is an administrator.
 function checkAdmin(req, res, next) {
     // Allow access only when the role is admin.
@@ -487,20 +501,198 @@ app.post(
     }
 );
 // ==========================================================
-// TEMPORARY BORROW ROUTE
+// BORROW A BOOK
 // ==========================================================
 
-// Only logged-in users are allowed to borrow books.
-// The complete borrowing feature can replace this route later.
 app.post(
     '/borrow/:bookId',
     checkAuthenticated,
+    checkMember,
     (req, res) => {
-        res.send(`
-            <h2>Borrowing function not connected yet.</h2>
-            <p>Selected book ID: ${req.params.bookId}</p>
-            <a href="/">Return to homepage</a>
-        `);
+        const bookId = Number.parseInt(
+            req.params.bookId,
+            10
+        );
+
+        const userId =
+            req.session.user.userId;
+
+        if (
+            !Number.isInteger(bookId) ||
+            bookId <= 0
+        ) {
+            req.session.errorMessage =
+                'Invalid book selected.';
+
+            return res.redirect('/');
+        }
+
+        // Check whether the book exists
+        // and whether a copy is available.
+        const checkBookSql = `
+            SELECT
+                bookId,
+                title,
+                availableQuantity
+            FROM books
+            WHERE bookId = ?
+        `;
+
+        db.query(
+            checkBookSql,
+            [bookId],
+            (bookError, books) => {
+                if (bookError) {
+                    console.error(
+                        'Error checking book:',
+                        bookError
+                    );
+
+                    req.session.errorMessage =
+                        'Unable to borrow the book.';
+
+                    return res.redirect(
+                        `/book/${bookId}`
+                    );
+                }
+
+                if (books.length === 0) {
+                    req.session.errorMessage =
+                        'Book not found.';
+
+                    return res.redirect('/');
+                }
+
+                const book = books[0];
+
+                if (book.availableQuantity <= 0) {
+                    req.session.errorMessage =
+                        'This book is currently unavailable.';
+
+                    return res.redirect(
+                        `/book/${bookId}`
+                    );
+                }
+
+                // Prevent the same member from borrowing
+                // the same book more than once before returning it.
+                const duplicateSql = `
+                    SELECT borrowId
+                    FROM borrow_records
+                    WHERE userId = ?
+                      AND bookId = ?
+                      AND status = 'borrowed'
+                `;
+
+                db.query(
+                    duplicateSql,
+                    [userId, bookId],
+                    (duplicateError, records) => {
+                        if (duplicateError) {
+                            console.error(
+                                'Error checking borrowing:',
+                                duplicateError
+                            );
+
+                            req.session.errorMessage =
+                                'Unable to borrow the book.';
+
+                            return res.redirect(
+                                `/book/${bookId}`
+                            );
+                        }
+
+                        if (records.length > 0) {
+                            req.session.errorMessage =
+                                'You have already borrowed this book.';
+
+                            return res.redirect(
+                                '/my-borrowings'
+                            );
+                        }
+
+                        const insertBorrowSql = `
+                            INSERT INTO borrow_records
+                            (
+                                userId,
+                                bookId,
+                                borrowDate,
+                                dueDate,
+                                returnDate,
+                                status
+                            )
+                            VALUES
+                            (
+                                ?,
+                                ?,
+                                CURDATE(),
+                                DATE_ADD(
+                                    CURDATE(),
+                                    INTERVAL 14 DAY
+                                ),
+                                NULL,
+                                'borrowed'
+                            )
+                        `;
+
+                        db.query(
+                            insertBorrowSql,
+                            [userId, bookId],
+                            (insertError) => {
+                                if (insertError) {
+                                    console.error(
+                                        'Error creating borrow record:',
+                                        insertError
+                                    );
+
+                                    req.session.errorMessage =
+                                        'Unable to borrow the book.';
+
+                                    return res.redirect(
+                                        `/book/${bookId}`
+                                    );
+                                }
+
+                                const updateBookSql = `
+                                    UPDATE books
+                                    SET availableQuantity =
+                                        availableQuantity - 1
+                                    WHERE bookId = ?
+                                      AND availableQuantity > 0
+                                `;
+
+                                db.query(
+                                    updateBookSql,
+                                    [bookId],
+                                    (updateError) => {
+                                        if (updateError) {
+                                            console.error(
+                                                'Error updating book quantity:',
+                                                updateError
+                                            );
+
+                                            req.session.errorMessage =
+                                                'Borrow record was created, but book quantity could not be updated.';
+
+                                            return res.redirect(
+                                                '/my-borrowings'
+                                            );
+                                        }
+
+                                        req.session.successMessage =
+                                            `"${book.title}" borrowed successfully.`;
+
+                                        return res.redirect(
+                                            '/my-borrowings'
+                                        );
+                                    }
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
     }
 );
 
@@ -882,7 +1074,7 @@ app.post('/login', (req, res) => {
                 }
 
                 // Send members to the homepage.
-                return res.redirect('/member-dashboard');
+                return res.redirect('/');
             } catch (compareError) {
                 console.error(
                     'Password comparison error:',
@@ -932,29 +1124,232 @@ app.get('/logout', (req, res) => {
 });
 
 // ==========================================================
-// MEMBER DASHBOARD
+// MY BORROWINGS
 // ==========================================================
 
-// Only logged-in members can access this page.
 app.get(
-    '/member-dashboard',
+    '/my-borrowings',
     checkAuthenticated,
+    checkMember,
     (req, res) => {
-        // Prevent administrators from accessing
-        // the member dashboard.
-        if (req.session.user.role !== 'member') {
-            req.session.errorMessage =
-                'Member access only.';
+        const userId =
+            req.session.user.userId;
 
-            return res.redirect('/admin');
+        const sql = `
+            SELECT
+                br.borrowId,
+                br.bookId,
+                br.borrowDate,
+                br.dueDate,
+                br.returnDate,
+                br.status,
+                b.title,
+                b.author,
+                b.image,
+                c.categoryName
+            FROM borrow_records br
+            INNER JOIN books b
+                ON br.bookId = b.bookId
+            INNER JOIN categories c
+                ON b.categoryId = c.categoryId
+            WHERE br.userId = ?
+            ORDER BY
+                br.status ASC,
+                br.borrowDate DESC
+        `;
+
+        db.query(
+            sql,
+            [userId],
+            (error, borrowings) => {
+                if (error) {
+                    console.error(
+                        'Error loading borrowings:',
+                        error
+                    );
+
+                    return res.status(500).send(
+                        'Unable to load your borrowings.'
+                    );
+                }
+
+                const currentBorrowings =
+                    borrowings.filter(
+                        record =>
+                            record.status ===
+                            'borrowed'
+                    );
+
+                const borrowingHistory =
+                    borrowings.filter(
+                        record =>
+                            record.status ===
+                            'returned'
+                    );
+
+                return res.render(
+                    'myBorrowings',
+                    {
+                        pageTitle:
+                            'My Borrowings',
+                        currentBorrowings:
+                            currentBorrowings,
+                        borrowingHistory:
+                            borrowingHistory
+                    }
+                );
+            }
+        );
+    }
+);
+
+// ==========================================================
+// RETURN A BOOK
+// ==========================================================
+
+app.post(
+    '/return/:borrowId',
+    checkAuthenticated,
+    checkMember,
+    (req, res) => {
+        const borrowId = Number.parseInt(
+            req.params.borrowId,
+            10
+        );
+
+        const userId =
+            req.session.user.userId;
+
+        if (
+            !Number.isInteger(borrowId) ||
+            borrowId <= 0
+        ) {
+            req.session.errorMessage =
+                'Invalid borrowing record.';
+
+            return res.redirect(
+                '/my-borrowings'
+            );
         }
 
-        // Temporary page until memberDashboard.ejs is created.
-        return res.send(`
-            <h2>Member Dashboard</h2>
-            <p>Welcome, ${req.session.user.name}.</p>
-            <a href="/">Return to homepage</a>
-        `);
+        // Ensure the borrowing belongs
+        // to the logged-in member.
+        const checkBorrowSql = `
+            SELECT
+                br.borrowId,
+                br.bookId,
+                br.status,
+                b.title
+            FROM borrow_records br
+            INNER JOIN books b
+                ON br.bookId = b.bookId
+            WHERE br.borrowId = ?
+              AND br.userId = ?
+        `;
+
+        db.query(
+            checkBorrowSql,
+            [borrowId, userId],
+            (checkError, records) => {
+                if (checkError) {
+                    console.error(
+                        'Error checking borrowing:',
+                        checkError
+                    );
+
+                    req.session.errorMessage =
+                        'Unable to return the book.';
+
+                    return res.redirect(
+                        '/my-borrowings'
+                    );
+                }
+
+                if (records.length === 0) {
+                    req.session.errorMessage =
+                        'Borrowing record not found.';
+
+                    return res.redirect(
+                        '/my-borrowings'
+                    );
+                }
+
+                const record = records[0];
+
+                if (record.status === 'returned') {
+                    req.session.errorMessage =
+                        'This book has already been returned.';
+
+                    return res.redirect(
+                        '/my-borrowings'
+                    );
+                }
+
+                const updateBorrowSql = `
+                    UPDATE borrow_records
+                    SET
+                        returnDate = CURDATE(),
+                        status = 'returned'
+                    WHERE borrowId = ?
+                      AND userId = ?
+                      AND status = 'borrowed'
+                `;
+
+                db.query(
+                    updateBorrowSql,
+                    [borrowId, userId],
+                    (updateBorrowError) => {
+                        if (updateBorrowError) {
+                            console.error(
+                                'Error returning book:',
+                                updateBorrowError
+                            );
+
+                            req.session.errorMessage =
+                                'Unable to return the book.';
+
+                            return res.redirect(
+                                '/my-borrowings'
+                            );
+                        }
+
+                        const updateBookSql = `
+                            UPDATE books
+                            SET availableQuantity =
+                                availableQuantity + 1
+                            WHERE bookId = ?
+                        `;
+
+                        db.query(
+                            updateBookSql,
+                            [record.bookId],
+                            (updateBookError) => {
+                                if (updateBookError) {
+                                    console.error(
+                                        'Error restoring book quantity:',
+                                        updateBookError
+                                    );
+
+                                    req.session.errorMessage =
+                                        'Return was recorded, but the available quantity could not be updated.';
+
+                                    return res.redirect(
+                                        '/my-borrowings'
+                                    );
+                                }
+
+                                req.session.successMessage =
+                                    `"${record.title}" returned successfully.`;
+
+                                return res.redirect(
+                                    '/my-borrowings'
+                                );
+                            }
+                        );
+                    }
+                );
+            }
+        );
     }
 );
 
