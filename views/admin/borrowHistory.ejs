@@ -1,70 +1,78 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title><%= pageTitle %></title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <%- include('../partials/header') %>
 </head>
 
-<body class="container mt-4">
+<body class="bg-light">
 
-    <h2>All Borrow History</h2>
-    <hr>
+    <%- include('../partials/adminTabs') %>
 
-    <table class="table table-striped table-bordered">
-        <thead class="table-dark">
-            <tr>
-                <th>Member Name</th>
-                <th>Book Title</th>
-                <th>Author</th>
-                <th>Borrow Date</th>
-                <th>Due Date</th>
-                <th>Return Date</th>
-                <th>Status</th>
-            </tr>
-        </thead>
+    <div class="container py-4">
 
-        <tbody>
-            <% records.forEach(r => { %>
-            <tr>
-                <td><%= r.name %></td>
-                <td><%= r.title %></td>
-                <td><%= r.author %></td>
+        <h2>All Borrow History</h2>
+        <hr>
 
-                <!-- Borrow Date -->
-                <td>
-                    <%= r.borrowDate ? new Date(r.borrowDate).toLocaleDateString('en-GB') : '-' %>
-                </td>
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>Member Name</th>
+                    <th>Book Title</th>
+                    <th>Author</th>
+                    <th>Borrow Date</th>
+                    <th>Due Date</th>
+                    <th>Return Date</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
 
-                <!-- Due Date -->
-                <td>
-                    <%= r.dueDate ? new Date(r.dueDate).toLocaleDateString('en-GB') : '-' %>
-                </td>
+            <tbody>
+                <% records.forEach(r => { %>
+                <tr>
+                    <td><%= r.name %></td>
+                    <td><%= r.title %></td>
+                    <td><%= r.author %></td>
 
-                <!-- Return Date -->
-                <td>
-                    <%= r.returnDate ? new Date(r.returnDate).toLocaleDateString('en-GB') : '-' %>
-                </td>
+                    <td>
+                        <%= r.borrowDate 
+                            ? new Date(r.borrowDate).toLocaleDateString('en-GB') 
+                            : '-' %>
+                    </td>
 
-                <!-- Status -->
-                <td>
-                    <% if (r.returnDate) { %>
-                        <span class="text-success">Returned</span>
-                    <% } else { %>
-                        <span class="text-danger">Borrowed</span>
-                    <% } %>
-                </td>
+                    <td>
+                        <%= r.dueDate 
+                            ? new Date(r.dueDate).toLocaleDateString('en-GB') 
+                            : '-' %>
+                    </td>
 
-            </tr>
-            <% }) %>
-        </tbody>
-    </table>
+                    <td>
+                        <%= r.returnDate 
+                            ? new Date(r.returnDate).toLocaleDateString('en-GB') 
+                            : '-' %>
+                    </td>
 
-    <div class="mt-4">
-        <a href="/admin" class="btn btn-secondary">
-            Back to Admin Dashboard
-        </a>
+                    <td>
+                        <% if (r.returnDate) { %>
+                            <span class="text-success">Returned</span>
+                        <% } else { %>
+                            <span class="text-danger">Borrowed</span>
+                        <% } %>
+                    </td>
+
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+
+        <div class="mt-4">
+            <a href="/admin" class="btn btn-secondary">
+                Back to Admin Dashboard
+            </a>
+        </div>
+
     </div>
+
+    <%- include('../partials/footer') %>
 
 </body>
 </html>
