@@ -1451,6 +1451,7 @@ app.post('/admin/members/delete/:userId', adminOnly, (req, res) => {
 // ADMIN PROFILE
 // ==========================================================
 
+// Show profile
 app.get('/admin/profile', adminOnly, (req, res) => {
 
     res.render('admin/profile', {
