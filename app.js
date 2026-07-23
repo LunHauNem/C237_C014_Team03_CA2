@@ -403,13 +403,11 @@ app.get(
 
                 }
 
-                res.render('bookForm', {
+                res.render('addBook', {
 
                     pageTitle: 'Add Book',
 
-                    formMode: 'add',
-
-                    book: null,
+                    error: '',
 
                     categories,
 
@@ -1051,101 +1049,6 @@ app.get('/admin/books', adminOnly, (req, res) => {
 
 
 // ==========================================================
-// ADD BOOK FORM
-// ==========================================================
-
-app.get('/admin/bookForm', adminOnly, (req, res) => {
-
-    db.query(
-        `
-        SELECT
-            categoryId,
-            categoryName
-        FROM categories
-        ORDER BY categoryName
-        `,
-        (err, categories) => {
-
-            if (err) {
-                console.error(err);
-                return res.status(500).send('Unable to load categories.');
-            }
-
-            res.render('admin/bookForm', {
-                pageTitle: 'Add Book',
-                categories,
-                book: null,
-                formMode: 'add',
-                user: req.session.user,
-                currentPage: 'books'
-            });
-
-        }
-    );
-
-});
-
-
-// ==========================================================
-// CREATE BOOK
-// ==========================================================
-
-app.post('/admin/bookForm', adminOnly, (req, res) => {
-
-    const {
-        title,
-        author,
-        isbn,
-        quantity,
-        availableQuantity,
-        description,
-        image,
-        categoryId
-    } = req.body;
-
-    const sql = `
-        INSERT INTO books
-        (
-            title,
-            author,
-            isbn,
-            quantity,
-            availableQuantity,
-            description,
-            image,
-            categoryId
-        )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-    `;
-
-    db.query(
-        sql,
-        [
-            title,
-            author,
-            isbn,
-            quantity,
-            availableQuantity,
-            description,
-            image,
-            categoryId
-        ],
-        (err) => {
-
-            if (err) {
-                console.error(err);
-                return res.status(500).send('Unable to add book.');
-            }
-
-            req.session.successMessage = 'Book added successfully.';
-            res.redirect('/admin/books');
-
-        }
-    );
-
-});
-
-// ==========================================================
 // EDIT BOOK
 // ==========================================================
 
@@ -1257,6 +1160,84 @@ app.post('/admin/editBook/:bookId', adminOnly, (req, res) => {
     );
 
 });
+// ==========================================
+// ADD BOOKS
+// ==========================================
+app.get(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
+        db.query(
+            `SELECT categoryId, categoryName
+            FROM categories
+            ORDER BY categoryName
+            `,
+            (error, categories) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Unable to load categories.');
+                }
+                res.render('addBook', {
+                    pageTitle: 'Add Book',
+                    error: '',
+                    categories,
+                    user: req.session.user
+                });
+            });
+    });
+
+app.post(
+    '/admin/books/add',
+    adminOnly,
+    (req, res) => {
+        const {
+
+            title,
+            author,
+            isbn,
+            quantity,
+            availableQuantity,
+            description,
+            image,
+            categoryId
+        } = req.body;
+        const sql = `
+            INSERT INTO books
+            (
+                title,
+                author,
+                isbn,
+                quantity,
+                availableQuantity,
+                description,
+                image,
+                categoryId
+            )
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `;
+        db.query(
+            sql,
+            [
+                title,
+                author,
+                isbn,
+                quantity,
+                availableQuantity,
+                description,
+                image,
+                categoryId
+            ],
+            (error) => {
+                if (error) {
+                    console.error(error);
+                    return res.status(500).send('Unable to add book.');
+                }
+                req.session.successMessage =
+                    'Book added successfully.';
+                res.redirect('/admin/books');
+            }
+        );
+    });
 
 // ==========================================================
 // DELETE BOOK
