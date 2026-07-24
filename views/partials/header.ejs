@@ -107,10 +107,10 @@
 
                     <!-- Display the logged-in user's name -->
                     <li class="nav-item">
-                        <span class="nav-link">
+                        <a class="nav-link" href="<%= user.role === 'admin' ? '/admin/profile' : '/profile' %>">
                             <i class="bi bi-person-circle"></i>
                             Welcome, <%= user.name %>
-                        </span>
+                        </a>
                     </li>
 
                     <!-- Log out of the current session -->
