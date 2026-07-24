@@ -41,7 +41,7 @@
         <!-- Application name and logo -->
         <a class="navbar-brand fw-bold" href="/">
             <i class="bi bi-book-half me-2"></i>
-            Team 03 Library
+            BookNest Library
         </a>
 
         <!-- Mobile navigation toggle button -->
@@ -107,11 +107,10 @@
 
                     <!-- Display the logged-in user's name -->
                     <li class="nav-item">
-                        <a class="nav-link" href="/profile">
-                            <i class="bi bi-person-circle me-1"></i>
-                            Welcome,
-                            <%= user.name || user.username || 'User' %>
-                        </a>
+                        <span class="nav-link">
+                            <i class="bi bi-person-circle"></i>
+                            Welcome, <%= user.name %>
+                        </span>
                     </li>
 
                     <!-- Log out of the current session -->
